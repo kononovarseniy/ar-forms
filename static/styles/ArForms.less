@@ -1,8 +1,19 @@
-@bg: #111111;
-@elements_bg: lighten(@bg, 10%);
-@fg: white;
+html.centered {
+  height: 100%;
+  padding-left: 10px;
+  padding-right: 10px;
 
-body {
-  background: @bg;
-  color: @fg;
+  body {
+    height: 100%;
+
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.error-label {
+  color: maroon;
 }

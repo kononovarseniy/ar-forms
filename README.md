@@ -9,6 +9,8 @@ To create database for this project run execute following commands in `psql`:
 CREATE DATABASE ar_forms;
 CREATE USER ar_forms WITH ENCRYPTED PASSWORD 'master';
 GRANT ALL PRIVILEGES ON DATABASE ar_forms TO ar_forms;
+\c ar_forms
+CREATE EXTENSION pgcrypto;
 ```
 
 #### Virtual environment
