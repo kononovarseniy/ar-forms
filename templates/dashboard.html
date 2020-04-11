@@ -4,24 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>ArForms log in</title>
+    <title>ArForms</title>
     <link rel="icon" type="image/png" href="/static/favicon.png"/>
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css">
-    <!--[if lte IE 8]>
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
-    <![endif]-->
-    <!--[if gt IE 8]><!-->
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
-    <!--<![endif]-->
 
-    <link rel="stylesheet/less" type="text/css" href="/static/styles/ArForms.less"/>
+    <link rel="stylesheet/less" type="text/css" href="/static/styles/ar_forms.less"/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.9.0/less.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
-            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-            crossorigin="anonymous"></script>
+    <script src="/static/js/ar_forms.js"></script>
 </head>
 <body>
-    Hello, {{ name }}!!!
+<div id="layout">
+    {% with section='dashboard' %}
+        {% include 'menu.html' %}
+    {% endwith %}
+
+    <div id="main">
+        <div class="header">
+            <h1>Hello, {{ user.display_name }}</h1>
+            <h2>What will we do today?</h2>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="content">
+                <div class="content-subhead-with-button">
+                    <h2 class="content-subhead">Your forms</h2>
+                    <button class="pure-button button-success">New</button>
+                </div>
+                <table class="pure-table pure-table-horizontal own-forms-table">
+                    <thead>
+                    <tr>
+                        <td class="text-center">Type</td>
+                        <td>Title</td>
+                        <td class="text-center">Published</td>
+                        <td class="text-center">Actions</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in range(10) %}
+                        <tr class="{% if i is divisibleby 2 %}published-form{% endif %}">
+                            <td class="fit-width">Poll</td>
+                            <td>Something {{ i }}</td>
+                            <td class="fit-width"><span class="icon-published"></span></td>
+                            <td class="fit-width">
+                                <div class="action-button-group">
+                                    <a href="#" class="button-edit" title="Edit"></a>
+                                    <a href="#" class="button-delete" title="Delete"></a>
+                                    <a href="#" class="button-publish" title="Publish"></a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% include 'footer.html' %}
+    </div>
+</div>
 </body>
 </html>

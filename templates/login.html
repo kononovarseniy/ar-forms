@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="centered">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,42 +8,54 @@
     <link rel="icon" type="image/png" href="/static/favicon.png"/>
 
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css">
-    <!--[if lte IE 8]>
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
-    <![endif]-->
-    <!--[if gt IE 8]><!-->
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
-    <!--<![endif]-->
 
-    <link rel="stylesheet/less" type="text/css" href="/static/styles/ArForms.less"/>
+    <link rel="stylesheet/less" type="text/css" href="/static/styles/ar_forms.less"/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.9.0/less.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
-            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-            crossorigin="anonymous"></script>
+    <script src="/static/js/ar_forms.js"></script>
 </head>
 <body>
-<form class="pure-form pure-form-stacked" id="auth_form" method="POST" action="/login">
-    <fieldset>
-        <legend>ArForms log in</legend>
-        <div class="pure-g">
-            <div class="pure-u-1">
-                <label for="login">Username</label>
-                <input id="login" class="pure-u-1" name="login" type="text" required
-                       value="{{ request.form['login'] }}"/>
-            </div>
 
-            <div class="pure-u-1">
-                <label for="password">Password</label>
-                <input id="password" class="pure-u-1" name="password" type="password" required/>
-            </div>
+<div id="layout">
+    {% with section='login' %}
+        {% include 'menu.html' %}
+    {% endwith %}
+    <div id="main">
+        <div class="header">
+            <h1>Log in to ArForms</h1>
+            <h2>Identify yourself!</h2>
+        </div>
 
-            <label id="error-label" class="pure-u-1 error-label">{{ error if error }}</label>
+        <div class="content-wrapper">
+            <div class="content">
+                <form class="pure-form pure-form-stacked black-text" id="auth_form" method="POST" action="/login">
+                    <fieldset>
+                        <div class="pure-g">
+                            <div class="pure-u-1">
+                                <label for="login">Username</label>
+                                <input id="login" class="pure-u-1" name="login" type="text" required
+                                       value="{{ request.form['login'] }}"/>
+                            </div>
 
-            <div class="pure-u-1 pure-control-group">
-                <button class="pure-button pure-button-primary">Log in</button>
-                <button type="button" class="pure-button" onclick="location.href='/signup'">Sign up</button>
+                            <div class="pure-u-1">
+                                <label for="password">Password</label>
+                                <input id="password" class="pure-u-1" name="password" type="password" required/>
+                            </div>
+
+                            <label id="error-label" class="pure-u-1 error-label">{{ error if error }}</label>
+
+                            <div class="pure-u-1 pure-control-group">
+                                <button class="pure-button pure-button-primary">Log in</button>
+                                <button type="button" class="pure-button" onclick="location.href='/signup'">Sign up
+                                </button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
             </div>
         </div>
-    </fieldset>
-</form>
+
+        {% include 'footer.html' %}
+    </div>
+</div>
 </body>

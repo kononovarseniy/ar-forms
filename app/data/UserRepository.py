@@ -9,13 +9,8 @@ class UserRepository:
     def get_user_by_id(user_id):
         conn, cur = get_cursor()
         cur.execute('SELECT id, login, display_name FROM users WHERE id = %s;', (user_id,))
-        user_fields = None
-        try:
-            user_fields = cur.fetchone()
-        except psycopg2.ProgrammingError:
-            pass
+        user_fields = cur.fetchone()
         del_cursor(conn, cur)
-
         if user_fields:
             return User(*user_fields)
 
@@ -39,13 +34,10 @@ class UserRepository:
     @staticmethod
     def get_user_by_credentials(login, password):
         conn, cur = get_cursor()
-        try:
-            cur.execute('SELECT id, login, display_name FROM users '
-                        'WHERE login = %s AND password = crypt(%s, password);', (login, password))
-            user_fields = cur.fetchone()
-        except psycopg2.ProgrammingError:
-            return None
-        finally:
-            del_cursor(conn, cur)
+        cur.execute('SELECT id, login, display_name FROM users '
+                    'WHERE login = %s AND password = crypt(%s, password);', (login, password))
+        user_fields = cur.fetchone()
+        del_cursor(conn, cur)
 
-        return User(*user_fields)
+        if user_fields:
+            return User(*user_fields)

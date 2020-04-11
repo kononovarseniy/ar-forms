@@ -22,13 +22,16 @@ def authorized_only(func):
     return wrapper
 
 
-@app.route('/')
-def index():
+@app.errorhandler(404)
+def page_not_found(error):
     user = SessionManager.get_user()
-    if user:
-        return redirect(url_for('dashboard'))
-    else:
-        return redirect(url_for('login'))
+    return render_template('page_not_found.html', user=user), 404
+
+
+@app.route('/')
+def about():
+    user = SessionManager.get_user()
+    return render_template('about.html', user=user)
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -77,11 +80,10 @@ def signup():
 @app.route('/logout', methods=['POST', 'GET'])
 def logout():
     SessionManager.stop_session()
-    return redirect(url_for('login'))
+    return redirect(url_for('about'))
 
 
 @app.route('/dashboard')
 @authorized_only
 def dashboard(user):
-    name = user.display_name
-    return render_template('dashboard.html', name=name)
+    return render_template('dashboard.html', user=user)

@@ -1,0 +1,405 @@
+@content-color: #777;
+@content-title-color: #333;
+@content-subtitle-color: #aaa;
+@content-subheading-color: #888;
+@footer-background: #fafafa;
+@menu-background-selected: #1f8dd6;
+@selection-background: #44a4e4;
+@link-color: #44a4e4;
+
+html, body, #layout, #main {
+  height: 100%;
+}
+
+body {
+  color: @content-color;
+}
+
+a {
+  color: @link-color;
+}
+
+.black-text {
+  color: #000;
+}
+
+.error-label {
+  color: maroon;
+}
+
+.button-success,
+.button-error,
+.button-warning,
+.button-secondary {
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.button-success {
+  background: rgb(28, 184, 65); /* this is a green */
+}
+
+.button-error {
+  background: rgb(202, 60, 60); /* this is a maroon */
+}
+
+.button-warning {
+  background: rgb(223, 117, 20); /* this is an orange */
+}
+
+.button-secondary {
+  background: rgb(66, 184, 221); /* this is a light blue */
+}
+
+.icon-published {
+  display: block;
+  height: 24px;
+  background: transparent url("/static/img/tick-green.png") no-repeat center center;
+  background-size: 24px 24px;
+}
+
+.action-button-group {
+  display: flex;
+  flex-direction: row;
+
+  a {
+    flex: 1;
+    margin: auto 5px auto 0;
+  }
+}
+
+.action-button {
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-size: 24px 24px;
+}
+
+.button-delete {
+  .action-button();
+  background: transparent url("/static/img/delete-white.png") no-repeat center center;
+}
+
+.button-edit {
+  .action-button();
+  background: transparent url("/static/img/edit-white.png") no-repeat center center;
+}
+
+.button-publish {
+  .action-button();
+  background: transparent url("/static/img/publish-white.png") no-repeat center center;
+}
+
+.pure-img-responsive {
+  max-width: 100%;
+  height: auto;
+}
+
+td.fit-width {
+  width: 1px;
+  white-space: nowrap;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.own-forms-table {
+  width: 100%;
+
+  tbody {
+    tr {
+      .action-button-group {
+        visibility: hidden;
+      }
+
+      &:hover {
+        color: white;
+        background: @selection-background;
+
+        .action-button-group {
+          visibility: visible;
+        }
+
+        .icon-published {
+          background: transparent url("/static/img/tick-white.png") no-repeat center center;
+        }
+      }
+
+      .icon-published {
+        visibility: hidden;
+      }
+
+      &.published-form {
+        .icon-published {
+          visibility: visible;
+        }
+
+        .button-edit {
+          visibility: hidden;
+        }
+
+        .button-publish {
+          visibility: hidden;
+        }
+      }
+    }
+  }
+}
+
+.content-subhead {
+  margin: 50px 0 20px 0;
+  font-weight: 300;
+  color: @content-subheading-color;
+}
+
+.content-subhead-with-button {
+  .content-subhead {
+    display: inline-block;
+  }
+
+  button {
+    float: right;
+    margin: 50px 0 20px 0;
+  }
+}
+
+/*
+Add transition to containers so they can push in and out.
+*/
+#layout,
+#menu,
+#menu-link {
+  -webkit-transition: all 0.2s ease-out;
+  -moz-transition: all 0.2s ease-out;
+  -ms-transition: all 0.2s ease-out;
+  -o-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
+}
+
+/*
+This is the parent `<div>` that contains the menu and the content area.
+*/
+#layout {
+  position: relative;
+  left: 0;
+  padding-left: 0;
+
+  &.active {
+    #menu {
+      left: 150px;
+      width: 150px;
+    }
+
+    #menu-link {
+      left: 150px;
+    }
+  }
+}
+
+#main {
+  display: flex;
+  flex-direction: column;
+
+  .content-wrapper {
+    margin: 0;
+    flex: 1;
+  }
+
+  // The content `<div>` is where all content goes.
+  .content {
+    padding: 0 2em;
+    max-width: 800px;
+    margin: 0 auto 50px;
+    line-height: 1.6em;
+  }
+
+  .header {
+    margin: 0;
+    color: @content-title-color;
+    text-align: center;
+    padding: 2.5em 2em 0;
+    border-bottom: 1px solid #eee;
+
+    h1 {
+      margin: 0.2em 0;
+      font-size: 3em;
+      font-weight: 300;
+    }
+
+    h2 {
+      font-weight: 300;
+      color: @content-subtitle-color;
+      padding: 0;
+      margin-top: 0;
+    }
+  }
+
+  .footer {
+    padding: 1em;
+    border-top: 1px solid darken(@footer-background, 5%);
+    background: @footer-background;
+  }
+}
+
+/*
+The `#menu` `<div>` is the parent `<div>` that contains the `.pure-menu` that
+appears on the left side of the page.
+*/
+#menu {
+  margin-left: -150px; /* "#menu" width */
+  width: 150px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1000; /* so the menu or its navicon stays above all content */
+  background: #191818;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  // All anchors inside the menu should be styled like this.
+  a {
+    color: #999;
+    border: none;
+    padding: 0.6em 0 0.6em 0.6em;
+  }
+
+  // Remove all background/borders, since we are applying them to #menu.
+  .pure-menu,
+  .pure-menu ul {
+    border: none;
+    background: transparent;
+  }
+
+  .pure-menu {
+    // Add that light border to separate items into groups.
+    ul, .menu-item-divided {
+      border-top: 1px solid #333;
+    }
+
+    // Change color of the anchor links on hover/focus.
+    li a {
+      &:hover, &:focus {
+        background: #333;
+      }
+    }
+  }
+
+  // This styles the menu heading.
+  .pure-menu-heading {
+    text-transform: none;
+    font-size: 130%;
+    color: #fff;
+    margin: 0;
+  }
+
+  // This styles the selected menu item `<li>`.
+  .pure-menu-selected {
+    background: @menu-background-selected;
+
+    // This styles a link within a selected menu item `<li>`.
+    a {
+      color: #fff;
+    }
+  }
+
+  .menu-item-login, .menu-item-signup {
+    a {
+      font-weight: bold;
+      color: white;
+    }
+  }
+}
+
+/*
+`#menu-link` represents the responsive menu toggle that shows/hides on
+small screens.
+*/
+#menu-link {
+  position: fixed;
+  display: block; /* show this only on small screens */
+  top: 0;
+  left: 0; /* "#menu width" */
+  background: #000;
+  background: rgba(0, 0, 0, 0.7);
+  font-size: 10px; /* change this value to increase/decrease button size */
+  z-index: 10;
+  width: 2em;
+  height: auto;
+  padding: 2.1em 1.6em;
+
+  &:hover, &:focus {
+    background: #000;
+  }
+
+  span {
+    position: relative;
+    display: block;
+
+    &, &:before, &:after {
+      background-color: #fff;
+      width: 100%;
+      height: 0.2em;
+    }
+
+    &:before, &:after {
+      position: absolute;
+      content: " ";
+    }
+
+    &:before {
+      margin-top: -0.6em;
+    }
+
+    &:after {
+      margin-top: 0.6em;
+    }
+  }
+}
+
+/* -- Responsive Styles (Media Queries) ------------------------------------- */
+
+/*
+Hides the menu at `48em`, but modify this based on your app's needs.
+*/
+@media (min-width: 48em) {
+
+  .header,
+  .content {
+    padding-left: 2em;
+    padding-right: 2em;
+  }
+
+  #layout {
+    padding-left: 150px; /* left col width "#menu" */
+    left: 0;
+  }
+
+  #menu {
+    left: 150px;
+  }
+
+  #menu-link {
+    position: fixed;
+    left: 150px;
+    display: none;
+  }
+
+  #layout.active #menu-link {
+    left: 150px;
+  }
+}
+
+@media (max-width: 48em) {
+  /* Only apply this when the window is small. Otherwise, the following
+  case results in extra padding on the left:
+      * Make the window small.
+      * Tap the menu to trigger the active state.
+      * Make the window large again.
+  */
+  #layout.active {
+    position: relative;
+    left: 150px;
+  }
+}
