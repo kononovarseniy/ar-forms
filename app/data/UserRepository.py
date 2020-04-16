@@ -2,9 +2,12 @@ import psycopg2
 
 from data.db import get_cursor, del_cursor
 from data.entities import User
+from data.fieldset import EntityFields
 
 
 class UserRepository:
+    fields = EntityFields(['id', 'login', 'display_name'], User, 'users')
+
     @staticmethod
     def get_user_by_id(user_id):
         conn, cur = get_cursor()

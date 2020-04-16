@@ -6,6 +6,12 @@
 @menu-background-selected: #1f8dd6;
 @selection-background: #44a4e4;
 @link-color: #44a4e4;
+@menu-background: #191818;
+@menu-text-color: #999;
+@header-line-color: #eee;
+
+@menu-z: 10;
+@modal-z: @menu-z + 1;
 
 html, body, #layout, #main {
   height: 100%;
@@ -19,11 +25,19 @@ a {
   color: @link-color;
 }
 
-.black-text {
-  color: #000;
+form {
+  color: @content-title-color;
+
+  textarea {
+    resize: vertical;
+  }
 }
 
-.error-label {
+.text-error {
+  color: maroon;
+}
+
+.text-warning {
   color: maroon;
 }
 
@@ -51,6 +65,22 @@ a {
   background: rgb(66, 184, 221); /* this is a light blue */
 }
 
+.button-xsmall {
+  font-size: 70%;
+}
+
+.button-small {
+  font-size: 85%;
+}
+
+.button-large {
+  font-size: 110%;
+}
+
+.button-xlarge {
+  font-size: 125%;
+}
+
 .icon-published {
   display: block;
   height: 24px;
@@ -73,6 +103,12 @@ a {
   width: 24px;
   height: 24px;
   background-size: 24px 24px;
+  border: none;
+  border-radius: 2px;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
 }
 
 .button-delete {
@@ -88,6 +124,30 @@ a {
 .button-publish {
   .action-button();
   background: transparent url("/static/img/publish-white.png") no-repeat center center;
+}
+
+@button-icon: {
+  width: 20px;
+  height: 20px;
+  float: left;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.save-button-icon {
+  @button-icon();
+  background-image: url('/static/img/save-white.png');
+}
+
+.publish-button-icon {
+  @button-icon();
+  background-image: url('/static/img/publish-white.png');
+}
+
+.cancel-button-icon {
+  @button-icon();
+  background-image: url('/static/img/cancel-white.png');
 }
 
 .pure-img-responsive {
@@ -143,6 +203,63 @@ td.fit-width {
           visibility: hidden;
         }
       }
+    }
+  }
+}
+
+/* Add Animation */
+@keyframes modal-slide-top {
+  from {
+    top: -300px;
+    opacity: 0
+  }
+  to {
+    top: 0;
+    opacity: 1
+  }
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: @modal-z;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4);
+
+  .modal-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: 5em auto 0 auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: fit-content;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+    animation-name: modal-slide-top;
+    animation-duration: 0.2s;
+
+    .modal-header {
+      padding: 0 16px;
+
+      h1, h2, p {
+        text-align: center;
+      }
+    }
+
+    .modal-buttons {
+      [class*='pure-u-'] {
+        box-sizing: border-box;
+        padding: 2.5px;
+      }
+
+      .pure-button {
+        width: 100%;
+      }
+
     }
   }
 }
@@ -219,7 +336,7 @@ This is the parent `<div>` that contains the menu and the content area.
     color: @content-title-color;
     text-align: center;
     padding: 2.5em 2em 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid @header-line-color;
 
     h1 {
       margin: 0.2em 0;
@@ -253,14 +370,14 @@ appears on the left side of the page.
   top: 0;
   left: 0;
   bottom: 0;
-  z-index: 1000; /* so the menu or its navicon stays above all content */
-  background: #191818;
+  z-index: @menu-z;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
-  // All anchors inside the menu should be styled like this.
+  background: @menu-background;
+
   a {
-    color: #999;
+    color: @menu-text-color;
     border: none;
     padding: 0.6em 0 0.6em 0.6em;
   }
@@ -308,6 +425,14 @@ appears on the left side of the page.
     a {
       font-weight: bold;
       color: white;
+    }
+  }
+
+  .menu-item-button {
+    padding: 5px 5px 0 5px;
+
+    button {
+      width: 100%;
     }
   }
 }

@@ -15,6 +15,7 @@
     <script src="/static/js/ar_forms.js"></script>
 </head>
 <body>
+{% include 'modals.html' %}
 <div id="layout">
     {% with section='dashboard' %}
         {% include 'menu.html' %}
@@ -22,7 +23,7 @@
 
     <div id="main">
         <div class="header">
-            <h1>Hello, {{ user.display_name }}</h1>
+            <h1>Hello, {{ user.display_name }}!</h1>
             <h2>What will we do today?</h2>
         </div>
 
@@ -30,34 +31,41 @@
             <div class="content">
                 <div class="content-subhead-with-button">
                     <h2 class="content-subhead">Your forms</h2>
-                    <button class="pure-button button-success">New</button>
+                    {% if forms|length != 0 %}
+                        <button class="pure-button button-success" name="new_form_button">New</button>
+                    {% endif %}
                 </div>
-                <table class="pure-table pure-table-horizontal own-forms-table">
-                    <thead>
-                    <tr>
-                        <td class="text-center">Type</td>
-                        <td>Title</td>
-                        <td class="text-center">Published</td>
-                        <td class="text-center">Actions</td>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for i in range(10) %}
-                        <tr class="{% if i is divisibleby 2 %}published-form{% endif %}">
-                            <td class="fit-width">Poll</td>
-                            <td>Something {{ i }}</td>
-                            <td class="fit-width"><span class="icon-published"></span></td>
-                            <td class="fit-width">
-                                <div class="action-button-group">
-                                    <a href="#" class="button-edit" title="Edit"></a>
-                                    <a href="#" class="button-delete" title="Delete"></a>
-                                    <a href="#" class="button-publish" title="Publish"></a>
-                                </div>
-                            </td>
+                {% if forms|length == 0 %}
+                    <span>You have not created any forms</span>
+                    <button class="pure-button button-success" name="new_form_button">Create it now!</button>
+                {% else %}
+                    <table class="pure-table pure-table-horizontal own-forms-table">
+                        <thead>
+                        <tr>
+                            <td class="text-center">Type</td>
+                            <td>Title</td>
+                            <td class="text-center">Published</td>
+                            <td class="text-center">Actions</td>
                         </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {% for form in forms %}
+                            <tr class="{% if form.is_public %}published-form{% endif %}" form_id="{{ form.id }}">
+                                <td class="fit-width">{{ form.form_type.name }}</td>
+                                <td>{{ form.title }}</td>
+                                <td class="fit-width"><span class="icon-published"></span></td>
+                                <td class="fit-width">
+                                    <div class="action-button-group">
+                                        <button name="button-edit" class="button-edit" form_id="{{ form.id }}" title="Edit"></button>
+                                        <button name="button-delete" class="button-delete" form_id="{{ form.id }}" title="Delete"></button>
+                                        <button name="button-publish" class="button-publish" form_id="{{ form.id }}" title="Publish"></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
             </div>
         </div>
 

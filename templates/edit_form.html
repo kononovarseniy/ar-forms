@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ArForms</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png"/>
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+
+    <link rel="stylesheet/less" type="text/css" href="/static/styles/ar_forms.less"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.9.0/less.min.js"></script>
+    <script src="/static/js/ar_forms.js"></script>
+    <script src="/static/js/edit_form.js"></script>
+</head>
+<body>
+{% include 'modals.html' %}
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="#menu" id="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="#">Edit form</a>
+
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item menu-item-button">
+                    <button id="save_button" class="pure-button button-success">
+                        <span>Save</span>
+                        <span class="save-button-icon"></span></button>
+                </li>
+                <li class="pure-menu-item menu-item-button">
+                    <button id="publish_button" class="pure-button button-secondary">
+                        <span>Publish</span>
+                        <span class="publish-button-icon"></span>
+                    </button>
+                </li>
+                <li class="pure-menu-item menu-item-button">
+                    <button id="cancel_button" class="pure-button button-error">
+                        <span>Cancel</span>
+                        <span class="cancel-button-icon"></span></button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="main">
+        <div class="header">
+            <h1>Edit form</h1>
+            <h2>Change it!</h2>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="content">
+                <form class="pure-form pure-form-stacked">
+                    <fieldset>
+                        <div class="pure-g">
+                            <div class="pure-u-1">
+                                <label for="form_title">Title</label>
+                                <input id="form_title" class="pure-u-1" type="text"/>
+                            </div>
+                            <div class="pure-u-1 pure-control-group">
+                                <label for="form_type">Form type</label>
+                                <select id="form_type">
+                                    <option value="poll">Poll</option>
+                                    <option value="test">Test</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1">
+                                <label for="form_description">Description</label>
+                                <textarea id="form_description" class="pure-u-1" rows="5"></textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+
+        {% include 'footer.html' %}
+    </div>
+</div>
+</body>
+</html>

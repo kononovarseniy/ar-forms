@@ -1,12 +1,15 @@
 from flask import Flask, request, render_template, redirect, url_for
 
-from model import SessionManager, UserManager
-from util import get_secret
+from api import execute_api_method
+from model import SessionManager, UserManager, FormManager
+from util.json import JSONEncoder
+from util.security import get_secret
 
 app = Flask(__name__,
             static_folder='../static',
             template_folder='../templates')
-app.secret_key = get_secret(16)
+app.secret_key = get_secret(16, 'secret.key')
+app.json_encoder = JSONEncoder
 
 
 def authorized_only(func):
@@ -32,6 +35,11 @@ def page_not_found(error):
 def about():
     user = SessionManager.get_user()
     return render_template('about.html', user=user)
+
+
+@app.route('/api/<method>')
+def api(method):
+    return execute_api_method(method)
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -86,4 +94,11 @@ def logout():
 @app.route('/dashboard')
 @authorized_only
 def dashboard(user):
-    return render_template('dashboard.html', user=user)
+    forms = list(FormManager.get_forms_by_user(user, user))
+    return render_template('dashboard.html', user=user, forms=forms)
+
+
+@app.route('/edit_form')
+@authorized_only
+def edit_form(user):
+    return render_template('edit_form.html', user=user)
