@@ -1,4 +1,4 @@
-from data.db import get_cursor, del_cursor, FORM_TYPE_POLL_ID, FORM_TYPE_TEST_ID
+from data.db import open_cursor, FORM_TYPE_POLL_ID, FORM_TYPE_TEST_ID
 from data.entities import FormType
 from data.fieldset import EntityFields
 
@@ -10,10 +10,9 @@ class FormTypeRepository:
 
     @staticmethod
     def get_form_type_by_id(type_id):
-        conn, cur = get_cursor()
-        cur.execute("SELECT id, name FROM form_types WHERE id = %s", (type_id,))
-        fields = cur.fetchone()
-        del_cursor(conn, cur)
+        with open_cursor() as (conn, cur):
+            cur.execute("SELECT id, name FROM form_types WHERE id = %s", (type_id,))
+            fields = cur.fetchone()
 
         if fields:
             return FormType(*fields)
