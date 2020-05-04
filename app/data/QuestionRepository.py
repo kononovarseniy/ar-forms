@@ -16,7 +16,7 @@ class QuestionRepository:
     @staticmethod
     def get_by_id(question_id: int) -> Question:
         fields = QuestionRepository.fields_with_type
-        with open_cursor() as (conn, cur):
+        with open_cursor() as cur:
             cur.execute(f"SELECT {fields} "
                         f"FROM questions LEFT JOIN question_types on questions.type_id = question_types.id "
                         f"WHERE questions.id = %s", [question_id])
@@ -25,7 +25,7 @@ class QuestionRepository:
     @staticmethod
     def get_all_by_form_id(form_id: int) -> Iterator[Question]:
         fields = QuestionRepository.fields_with_type
-        with open_cursor() as (conn, cur):
+        with open_cursor() as cur:
             cur.execute(f"SELECT {fields} "
                         f"FROM questions LEFT JOIN question_types on questions.type_id = question_types.id "
                         f"WHERE form_id = %s", [form_id])
@@ -34,24 +34,22 @@ class QuestionRepository:
 
     @staticmethod
     def insert(question: Question):
-        with open_cursor() as (conn, cur):
+        with open_cursor() as cur:
             cur.execute(
                 "INSERT INTO questions(index, text, type_id, form_id)"
                 "VALUES (%s, %s, %s, %s)"
                 "RETURNING id;",
                 (question.index, question.text, question.question_type_id, question.form_id))
             question.id = cur.fetchone()[0]
-            conn.commit()
 
     @staticmethod
     def update(question: Question):
-        with open_cursor() as (conn, cur):
+        with open_cursor() as cur:
             cur.execute(
                 "UPDATE questions "
                 "SET index = %s, text = %s, type_id = %s, form_id = %s "
                 "WHERE id = %s;",
                 (question.index, question.text, question.question_type_id, question.form_id, question.id))
-            conn.commit()
 
     @staticmethod
     def update_or_insert(question: Question):
@@ -64,7 +62,6 @@ class QuestionRepository:
     def delete_all_by_ids(ids: Collection[int]):
         if len(ids) == 0:
             return
-        with open_cursor() as (conn, cur):
+        with open_cursor() as cur:
             ids_template = ','.join(repeat('%s', len(ids)))
             cur.execute(f"DELETE FROM questions WHERE id IN ({ids_template});", ids)
-            conn.commit()

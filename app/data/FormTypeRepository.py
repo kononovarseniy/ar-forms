@@ -10,7 +10,7 @@ class FormTypeRepository:
 
     @staticmethod
     def get_form_type_by_id(type_id):
-        with open_cursor() as (conn, cur):
+        with open_cursor() as cur:
             cur.execute("SELECT id, name FROM form_types WHERE id = %s", (type_id,))
             fields = cur.fetchone()
 

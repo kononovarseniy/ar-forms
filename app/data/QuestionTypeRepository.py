@@ -11,13 +11,13 @@ class QuestionTypeRepository:
     @staticmethod
     def get_by_id(type_id: int) -> Optional[QuestionType]:
         fields = QuestionTypeRepository.fields
-        with open_cursor() as (conn, cur):
+        with open_cursor() as cur:
             cur.execute(f"SELECT {fields} FROM question_types WHERE id = %s", [type_id])
             return fields.unpack(cur.fetchone())
 
     @staticmethod
     def get_by_name(name: str) -> Optional[QuestionType]:
         fields = QuestionTypeRepository.fields
-        with open_cursor() as (conn, cur):
+        with open_cursor() as cur:
             cur.execute(f"SELECT {fields} FROM question_types WHERE name = %s", [name])
             return fields.unpack(cur.fetchone())
