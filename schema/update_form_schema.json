@@ -5,7 +5,6 @@
         "title",
         "description",
         "form_type",
-        "is_public",
         "questions"
     ],
     "properties": {
@@ -25,9 +24,6 @@
                 "poll",
                 "test"
             ]
-        },
-        "is_public": {
-            "type": "boolean"
         },
         "questions": {
             "type": "array",

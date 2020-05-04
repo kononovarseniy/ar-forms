@@ -1,4 +1,4 @@
-from functools import wraps, cached_property
+from functools import wraps
 from typing import Optional, Tuple, Any
 
 from flask import request, jsonify, json
@@ -6,6 +6,7 @@ from jsonschema import validate, ValidationError
 from werkzeug.exceptions import BadRequestKeyError
 
 from model import SessionManager, FormManager
+from util.json import get_schema
 
 _api_methods = {}
 
@@ -95,13 +96,6 @@ def get_form():
     else:
         return None, 404, 'Form not found'
 
-
-@cached_property
-def _update_form_schema():
-    with open('schema/update_form_schema.json', 'r') as f:
-        return json.loads(f.read())
-
-
 @api_method
 @auth_required
 def update_form(user):
@@ -109,7 +103,7 @@ def update_form(user):
     publish = request.args.get('publish', False)
 
     updates = json.loads(updates_json)
-    validate(updates, _update_form_schema)
+    validate(updates, get_schema('update_form_schema'))
 
     form = FormManager.update_form(user, updates, publish)
 

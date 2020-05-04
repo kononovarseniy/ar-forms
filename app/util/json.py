@@ -48,3 +48,15 @@ class JSONEncoder(json.JSONEncoder):
             return o.name
         else:
             return json.JSONEncoder.default(self, o)
+
+
+_loaded_schemas = {}
+
+
+def get_schema(name: str):
+    if name in _loaded_schemas:
+        return _loaded_schemas[name]
+
+    with open(f'schema/{name}.json') as f:
+        res = _loaded_schemas[name] = json.loads(f.read())
+        return res
