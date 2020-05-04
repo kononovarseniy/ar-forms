@@ -112,7 +112,7 @@ class FormManager:
         is_new = q_id == 0
 
         if is_new:
-            question = Question(None, None, None, None, form_id)
+            question = Question(None, 0, '', 0, form_id)
             old_answers = []
         else:
             question = QuestionRepository.get_by_id(q_id)
@@ -140,7 +140,7 @@ class FormManager:
         a_id = updates['id']
         is_new = a_id == 0
         if is_new:
-            answer = Answer(None, None, None, None, False, q_id)
+            answer = Answer(None, 0, '', False, False, q_id)
         else:
             answer = AnswerRepository.get_by_id(a_id)
             if not answer:
