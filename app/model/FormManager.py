@@ -96,14 +96,16 @@ class FormManager:
             raise ValueError("Invalid form type")
         form.is_public = publish
 
+        # Insert it before questions. It allows us to to get valid id
+        FormRepository.update_or_insert(form)
+
         unused_question_ids = set(q.id for q in old_form_questions)
         form.questions = []
         for q in updates['questions']:
             unused_question_ids.discard(q['id'])
-            form.questions.append(FormManager._update_question(q, form_id))
-
+            form.questions.append(FormManager._update_question(q, form.id))
         QuestionRepository.delete_all_by_ids(unused_question_ids)
-        FormRepository.update_or_insert(form)
+
         return form
 
     @staticmethod
@@ -124,14 +126,15 @@ class FormManager:
         question.text = updates['text']
         question.set_question_type(QuestionTypeRepository.get_by_name(updates['type']))
 
+        # Insert it before answers. It allows us to to get valid id
+        QuestionRepository.update_or_insert(question)
+
         unused_answer_ids = set(a.id for a in old_answers)
         question.answers = []
         for a in updates['answers']:
             unused_answer_ids.discard(a['id'])
-            question.answers.append(FormManager._update_answer(a, q_id))
-
+            question.answers.append(FormManager._update_answer(a, question.id))
         AnswerRepository.delete_all_by_ids(unused_answer_ids)
-        QuestionRepository.update_or_insert(question)
 
         return question
 
