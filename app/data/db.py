@@ -17,7 +17,7 @@ FORM_TYPE_TEST_NAME = "test"
 
 
 def _recreate_schema():
-    with open_cursor() as (conn, cur):
+    with open_cursor() as cur:
         cur.execute("DROP TABLE IF EXISTS paramters;")
         cur.execute("DROP TABLE IF EXISTS users CASCADE;")
         cur.execute("DROP TABLE IF EXISTS form_types CASCADE;")
@@ -51,11 +51,9 @@ def _recreate_schema():
                     "   is_public boolean not null"
                     ");")
 
-        conn.commit()
-
 
 def _get_schema_version():
-    with open_cursor() as (conn, cur):
+    with open_cursor() as cur:
         try:
             cur.execute("SELECT value FROM parameters WHERE name = %s", (SCHEMA_VERSION_PARAM,))
             return cur.fetchone()[0]
@@ -117,20 +115,28 @@ def get_connection(new: bool = False):
 
 
 @contextmanager
-def open_cursor():
-    """Context manager for connection and cursor objects"""
-    in_transaction = current_transaction is not None
+def open_cursor(new_transaction: bool = False):
+    """
+    Context manager for db cursor.
+    New transaction is created when either new_transaction is True or there is no currently open transaction.
+    If new transaction is created it will be committed at exit if no error occurred and closed in any case.
+    If there is open transaction it will not be committed or closed at exit.
+    :param new_transaction: Force transaction creation
+    :return: Cursor object associated with transaction
+    """
+    in_transaction = not new_transaction and current_transaction is not None
     if in_transaction:
         connection = current_transaction.connection
     else:
         connection = get_connection(True)
-    cursor = connection.cursor()
-    try:
-        yield connection, cursor
-    finally:
-        cursor.close()
-        if not in_transaction:
-            connection.close()
+    with connection.cursor() as cursor:
+        try:
+            yield cursor
+            if not in_transaction:
+                connection.commit()
+        finally:
+            if not in_transaction:
+                connection.close()
 
 
 _version = _get_schema_version()
