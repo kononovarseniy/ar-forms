@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from typing import Optional
 
 import psycopg2
 
@@ -62,15 +63,63 @@ def _get_schema_version():
             return None
 
 
-def _get_connection():
-    """Returns connection object"""
+class Transaction:
+    """Represents current transaction"""
+
+    def __init__(self, connection):
+        """Do not use directly. Use Transaction.open instead."""
+        self._connection = connection
+
+    @staticmethod
+    @contextmanager
+    def open():
+        """Open new transaction. Does nothing if transaction already open."""
+        global current_transaction
+
+        if current_transaction:
+            yield current_transaction
+        else:
+            try:
+                conn = get_connection(True)
+                current_transaction = Transaction(conn)
+                yield current_transaction
+            finally:
+                current_transaction = None
+
+    @property
+    def connection(self):
+        """Connection corresponding to current transaction"""
+        return self._connection
+
+    def commit(self):
+        """Commit transaction. And start next transaction"""
+        self.connection.commit()
+
+    def rollback(self):
+        """Rollback transaction. And start next transaction"""
+        self.connection.rollback()
+
+
+current_transaction: Optional[Transaction] = None
+
+
+def get_connection(new: bool = False):
+    """
+    Returns connection object.
+    :param new: if it is False (default) and there is open transaction,
+    then connection corresponding to current transaction is returned.
+    Otherwise new connection is created.
+    :return: psycopg2 connection
+    """
+    if not new and current_transaction is not None:
+        return current_transaction.connection
     return psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS)
 
 
 @contextmanager
 def open_cursor():
     """Context manager for connection and cursor objects"""
-    connection = _get_connection()
+    connection = get_connection()
     cursor = connection.cursor()
     try:
         yield connection, cursor
