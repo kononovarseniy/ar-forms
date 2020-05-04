@@ -96,6 +96,7 @@ def get_form():
     else:
         return None, 404, 'Form not found'
 
+
 @api_method
 @auth_required
 def update_form(user):

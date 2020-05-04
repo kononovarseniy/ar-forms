@@ -54,6 +54,8 @@ class AnswerRepository:
 
     @staticmethod
     def delete_all_by_ids(ids: Collection[int]):
+        if len(ids) == 0:
+            return
         with open_cursor() as (conn, cur):
             ids_template = ','.join(repeat('%s', len(ids)))
             cur.execute(f"DELETE FROM answers WHERE id IN ({ids_template});", ids)
