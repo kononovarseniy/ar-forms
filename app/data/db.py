@@ -147,13 +147,18 @@ def get_connection(new: bool = False):
 @contextmanager
 def open_cursor():
     """Context manager for connection and cursor objects"""
-    connection = get_connection()
+    in_transaction = current_transaction is not None
+    if in_transaction:
+        connection = current_transaction.connection
+    else:
+        connection = get_connection(True)
     cursor = connection.cursor()
     try:
         yield connection, cursor
     finally:
         cursor.close()
-        connection.close()
+        if not in_transaction:
+            connection.close()
 
 
 _version = _get_schema_version()
