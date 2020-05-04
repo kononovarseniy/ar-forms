@@ -1,6 +1,7 @@
 import functools
 
 from flask import request, jsonify, json
+from jsonschema import validate, ValidationError
 from werkzeug.exceptions import BadRequestKeyError
 
 from model import SessionManager, FormManager
@@ -20,6 +21,9 @@ def api_method(func):
         except KeyError as e:
             error = e.args[0]
             status = 300
+        except ValidationError as e:
+            error = e.message
+            status = 400
         except ValueError as e:
             error = e.args[0] if len(e.args) != 0 else "Invalid value"
             status = 400
@@ -27,7 +31,9 @@ def api_method(func):
             error = "Permission denied"
             status = 403
         else:
-            if isinstance(res, tuple):
+            if res is None:
+                result, status, error = {}, 200, None
+            elif isinstance(res, tuple):
                 result, status, error = res
             else:
                 result, status, error = res, 200, None
@@ -77,10 +83,36 @@ def get_form():
 
 @api_method
 def update_form():
-    user = SessionManager.get_user()
-    updates_json = request.args['updates']
+    update_form_schema = {
+        'type': 'object',
+        'properties': {
+            'id': {
+                'type': 'integer',
+                'minimum': 1
+            },
+            'title': {'type': 'string'},
+            'description': {'type': 'string'},
+            'form_type': {
+                'type': 'string',
+                'enum': ['poll', 'test']
+            },
+            'is_public': {'type': 'boolean'}
+        }
+    }
 
+    user = SessionManager.get_user()
+    updates_json = request.args['form']
     updates = json.loads(updates_json)
+
+    validate(updates, update_form_schema)
+
     form = FormManager.update_form(user, updates)
 
     return form
+
+
+@api_method
+def delete_form():
+    user = SessionManager.get_user()
+    form_id = request.args['form_id']
+    FormManager.delete_form(user, form_id)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Iterator, Any, Dict, List
+from typing import Iterator, Any, Dict, List, Optional
 
 from data import FormRepository, FormTypeRepository
 from data.entities import User, Form
@@ -7,8 +7,12 @@ from data.entities import User, Form
 
 class FormManager:
     @staticmethod
-    def is_accessible(requesting: User, form: Form):
+    def is_accessible(requesting: Optional[User], form: Form):
         return form.is_public or (requesting and form.creator_id == requesting.id)
+
+    @staticmethod
+    def is_owner(requesting: Optional[User], form: Form):
+        return requesting and form.creator_id == requesting.id
 
     @staticmethod
     def filter_accessible(requesting: User, forms: Iterator[Form]) -> Iterator[Form]:
@@ -26,34 +30,35 @@ class FormManager:
         return form
 
     @staticmethod
+    def delete_form(requesting: User, form_id: int) -> None:
+        form = FormRepository.get_form_by_id(form_id)
+        if not form:
+            raise KeyError("No such form")
+        if not FormManager.is_owner(requesting, form):
+            raise PermissionError
+        FormRepository.delete_form_by_id(form_id)
+
+    @staticmethod
     def update_form(requesting: User, updates: Dict[str, Any]):
         if not requesting:
             raise PermissionError
 
         form_id = updates.get('id', None)
-        form_id = int(form_id)
-        state = updates['state']
+        is_new = form_id is None
+        if form_id is not None:
+            form_id = int(form_id)
 
         # Get or create form
-        if state == 'created':
+        if is_new:
             form = Form(None, "", "", FormTypeRepository.poll, requesting, datetime.now(), False)
-        elif state == 'modified' or state == 'deleted':
-            if not form_id or form_id <= 0:
-                raise KeyError("No such form")
+        else:
             form = FormRepository.get_form_by_id(form_id)
             if not form:
                 raise KeyError("Form not found")
-            if requesting.id != form.creator_id:
+            if not FormManager.is_owner(requesting, form):
                 raise PermissionError
-            if state == 'modified' and form.is_public:
+            if form.is_public:
                 raise ValueError("Cannot modify published form")
-        else:
-            raise ValueError("Invalid state")
-
-        # Delete form
-        if state == 'deleted':
-            FormRepository.delete_form_by_id(form_id)
-            return None
 
         # Set form fields
         if 'title' in updates:

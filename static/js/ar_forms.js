@@ -81,8 +81,12 @@ class API {
         return API.query('get_form', {form_id: form_id});
     }
 
-    static update_form(updates) {
-        return API.query('update_form', {updates: JSON.stringify(updates)});
+    static update_form(form) {
+        return API.query('update_form', {form: JSON.stringify(form)});
+    }
+
+    static delete_form(form_id) {
+        return API.query('delete_form', {form_id: form_id})
     }
 }
 
@@ -280,7 +284,7 @@ function onDeleteButtonClick(event) {
     }
 
     function do_deletion() {
-        API.update_form({id: id, state: 'deleted'})
+        API.delete_form(id)
             .on_load(function () {
                 location.reload();
             })
@@ -306,7 +310,7 @@ function onPublishButtonClick(event) {
     }
 
     function publish() {
-        API.update_form({id: id, is_public: true, state: 'modified'})
+        API.update_form({id: id, is_public: true})
             .on_load(function () {
                 location.reload();
             })

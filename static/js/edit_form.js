@@ -41,20 +41,16 @@ function set_current_form(form) {
 }
 
 function send_form_updates(publish, callback) {
-    let form_state = 'modified';
-    if (currentForm.id === 0)
-        form_state = 'created';
-
-    let updates = {
-        id: currentForm.id,
-        state: form_state,
+    let form = {
         title: title.value,
         description: description.value,
         form_type: form_type.value,
-        publish: publish
+        is_public: publish
     };
+    if (currentForm.id !== 0)
+        form.id = currentForm.id
 
-    API.update_form(updates)
+    API.update_form(form)
         .on_load(function (result) {
             set_current_form(result);
             do_callback(callback);
