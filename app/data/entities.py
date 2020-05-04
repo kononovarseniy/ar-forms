@@ -65,10 +65,12 @@ class Question(EntityWithId):
     def set_question_type(self, question_type: QuestionType):
         self.question_type = question_type
         self.question_type_id = question_type.id
+        return self
 
     def set_form(self, form: Form):
         self.form = form
         self.form_id = form.id
+        return self
 
 
 class Answer(EntityWithId):
@@ -85,3 +87,4 @@ class Answer(EntityWithId):
     def set_question(self, question: Question):
         self.question_id = question.id
         self.question = question
+        return self
