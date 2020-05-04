@@ -74,5 +74,5 @@ class FormRepository:
                 "FROM forms JOIN form_types ON forms.type_id = form_types.id "
                 "WHERE forms.creator_id = %s ORDER BY forms.creation_date DESC",
                 (creator_id,))
-            for form in list(fs.unpack_iter(cur)):
+            for form in fs.unpack_iter(cur):
                 yield form
