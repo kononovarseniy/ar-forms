@@ -1,0 +1,95 @@
+{
+    "type": "object",
+    "required": [
+        "id",
+        "title",
+        "description",
+        "form_type",
+        "is_public",
+        "questions"
+    ],
+    "properties": {
+        "id": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "title": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "form_type": {
+            "type": "string",
+            "enum": [
+                "poll",
+                "test"
+            ]
+        },
+        "is_public": {
+            "type": "boolean"
+        },
+        "questions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "index",
+                    "text",
+                    "type",
+                    "answers"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "index": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "single-variant",
+                            "multiple-variants",
+                            "free-answer"
+                        ]
+                    },
+                    "answers": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "id",
+                                "index",
+                                "text",
+                                "is_right"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                "index": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                "text": {
+                                    "type": "string"
+                                },
+                                "is_right": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,3 +1,5 @@
+from functools import wraps
+
 from flask import Flask, request, render_template, redirect, url_for
 
 from api import execute_api_method
@@ -13,9 +15,7 @@ app.json_encoder = JSONEncoder
 
 
 def authorized_only(func):
-    import functools
-
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(*args, **kwargs):
         user = SessionManager.get_user()
         if not user:

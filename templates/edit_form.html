@@ -12,6 +12,7 @@
 
     <link rel="stylesheet/less" type="text/css" href="/static/styles/ar_forms.less"/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.9.0/less.min.js"></script>
+    <script src="/static/js/types.js"></script>
     <script src="/static/js/ar_forms.js"></script>
     <script src="/static/js/edit_form.js"></script>
 </head>
@@ -74,6 +75,27 @@
                             <div class="pure-u-1">
                                 <label for="form_description">Description</label>
                                 <textarea id="form_description" class="pure-u-1" rows="5"></textarea>
+                            </div>
+                        </div>
+                        <div id="question-list">
+                            <div class="question-container pure-g">
+                                <div class="pure-u-1 content-subhead-with-button">
+                                    <h2 class="content-subhead">Question #<span id="question-number">1</span></h2>
+                                    <button id="delete-question-button" class="pure-button button-error">Delete</button>
+                                </div>
+                                <textarea id="question-text" class="pure-u-1" rows="2"
+                                          placeholder="Question text"></textarea>
+
+                                <div id="question-type-selector" class="pure-u-1 pure-u-md-1-5"
+                                     style="border-right: #eee solid 1px">
+                                    <label>Question type:</label>
+                                    <select id="question-type">
+                                        <option value="one">Single variant</option>
+                                        <option value="many">Multiple variants</option>
+                                        <option value="free">Free answer</option>
+                                    </select>
+                                </div>
+                                <div id="answer-list-container" class="pure-u-1 pure-u-md-4-5"></div>
                             </div>
                         </div>
                     </fieldset>

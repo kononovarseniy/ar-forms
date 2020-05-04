@@ -31,6 +31,7 @@ class Form(EntityWithId):
 
         self.form_type = form_type if isinstance(form_type, FormType) else None
         self.creator = creation_date if isinstance(creator, User) else None
+        self.questions = None
 
     def set_form_type(self, form_type: FormType):
         self.form_type = form_type
@@ -41,3 +42,46 @@ class Form(EntityWithId):
         self.creator = creator
         self.creator_id = creator.id
         return self
+
+
+class QuestionType(EntityWithId):
+    def __init__(self, question_type_id, name):
+        super().__init__(question_type_id)
+        self.name = name
+
+
+class Question(EntityWithId):
+    def __init__(self, question_id, index, text, question_type, form):
+        super().__init__(question_id)
+        self.index = index
+        self.text = text
+        self.question_type_id = int(question_type)
+        self.form_id = int(form)
+
+        self.question_type = question_type if isinstance(question_type, QuestionType) else None
+        self.form = form if isinstance(form, Form) else None
+        self.answers = None
+
+    def set_question_type(self, question_type: QuestionType):
+        self.question_type = question_type
+        self.question_type_id = question_type.id
+
+    def set_form(self, form: Form):
+        self.form = form
+        self.form_id = form.id
+
+
+class Answer(EntityWithId):
+    def __init__(self, answer_id, index, text, is_right, is_user_variant, question):
+        super().__init__(answer_id)
+        self.index = index
+        self.text = text
+        self.is_right = is_right
+        self.is_user_variant = is_user_variant
+        self.question_id = int(question)
+
+        self.question = question if isinstance(question, QuestionType) else None
+
+    def set_question(self, question: Question):
+        self.question_id = question.id
+        self.question = question

@@ -1,4 +1,5 @@
-import functools
+from functools import wraps, cached_property
+from typing import Optional, Tuple, Any
 
 from flask import request, jsonify, json
 from jsonschema import validate, ValidationError
@@ -10,39 +11,53 @@ _api_methods = {}
 
 
 def api_method(func):
-    @functools.wraps(func)
+    def unpack_result(res: Optional[Any]) -> Tuple[Any, int, Optional[str]]:
+        if res is None:
+            result, status, error = {}, 200, None
+        elif isinstance(res, tuple):
+            result, status, error = res
+        else:
+            result, status, error = res, 200, None
+        return result, status, error
+
+    @wraps(func)
     def wrapper(*args, **kwargs):
-        result, error, status = None, None, None
         try:
             res = func(*args, **kwargs)
         except BadRequestKeyError as e:
             error = "Missing argument " + e.args[0]
             status = 400
-        except KeyError as e:
-            error = e.args[0]
-            status = 300
         except ValidationError as e:
             error = e.message
             status = 400
+        except KeyError as e:
+            error = e.args[0]
+            status = 300
         except ValueError as e:
             error = e.args[0] if len(e.args) != 0 else "Invalid value"
             status = 400
-        except PermissionError:
-            error = "Permission denied"
+        except PermissionError as e:
+            error = e.args[0] if len(e.args) != 0 else "Permission denied"
             status = 403
         else:
-            if res is None:
-                result, status, error = {}, 200, None
-            elif isinstance(res, tuple):
-                result, status, error = res
-            else:
-                result, status, error = res, 200, None
-        return result, status, error
+            return unpack_result(res)
+        return None, status, error
 
     if func.__name__ in _api_methods:
         raise KeyError()
 
     _api_methods[func.__name__] = wrapper
+
+    return wrapper
+
+
+def auth_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        user = SessionManager.get_user()
+        if not user:
+            raise PermissionError("Authorization required")
+        return func(user, *args, **kwargs)
 
     return wrapper
 
@@ -81,38 +96,35 @@ def get_form():
         return None, 404, 'Form not found'
 
 
+@cached_property
+def _update_form_schema():
+    with open('schema/update_form_schema.json', 'r') as f:
+        return json.loads(f.read())
+
+
 @api_method
-def update_form():
-    update_form_schema = {
-        'type': 'object',
-        'properties': {
-            'id': {
-                'type': 'integer',
-                'minimum': 1
-            },
-            'title': {'type': 'string'},
-            'description': {'type': 'string'},
-            'form_type': {
-                'type': 'string',
-                'enum': ['poll', 'test']
-            },
-            'is_public': {'type': 'boolean'}
-        }
-    }
-
-    user = SessionManager.get_user()
+@auth_required
+def update_form(user):
     updates_json = request.args['form']
+    publish = request.args.get('publish', False)
+
     updates = json.loads(updates_json)
+    validate(updates, _update_form_schema)
 
-    validate(updates, update_form_schema)
-
-    form = FormManager.update_form(user, updates)
+    form = FormManager.update_form(user, updates, publish)
 
     return form
 
 
 @api_method
-def delete_form():
-    user = SessionManager.get_user()
+@auth_required
+def delete_form(user):
+    form_id = request.args['form_id']
+    FormManager.delete_form(user, form_id)
+
+
+@api_method
+@auth_required
+def publish_form(user):
     form_id = request.args['form_id']
     FormManager.delete_form(user, form_id)

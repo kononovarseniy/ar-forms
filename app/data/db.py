@@ -50,6 +50,34 @@ def _recreate_schema():
                     "   creation_date timestamp not null,"
                     "   is_public boolean not null"
                     ");")
+        cur.execute("CREATE INDEX ON forms (creator_id);")
+
+        cur.execute("CREATE TABLE question_types ("
+                    "   id serial primary key,"
+                    "   name text not null"
+                    ");")
+        cur.execute("INSERT INTO question_types (name)"
+                    "VALUES (%s), (%s), (%s)",
+                    ('single-variant', 'multiple-variants', 'free-answer'))
+
+        cur.execute("CREATE TABLE questions ("
+                    "   id serial primary key,"
+                    "   index int not null,"
+                    "   text text not null,"
+                    "   type_id int not null references question_types,"
+                    "   form_id int not null references forms ON DELETE CASCADE"
+                    ");")
+        cur.execute("CREATE INDEX ON questions (form_id);")
+
+        cur.execute("CREATE TABLE answers ("
+                    "   id serial primary key,"
+                    "   index int not null,"
+                    "   text text not null,"
+                    "   is_right boolean not null,"
+                    "   is_user_variant boolean not null,"
+                    "   question_id int not null references questions ON DELETE CASCADE"
+                    ");")
+        cur.execute("CREATE INDEX ON answers (question_id);")
 
         conn.commit()
 
