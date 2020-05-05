@@ -1,5 +1,5 @@
 from itertools import repeat
-from typing import Collection, Iterator
+from typing import Iterator, List
 
 from data import QuestionTypeRepository
 from data.db import open_cursor
@@ -59,7 +59,7 @@ class QuestionRepository:
             QuestionRepository.insert(question)
 
     @staticmethod
-    def delete_all_by_ids(ids: Collection[int]):
+    def delete_all_by_ids(ids: List[int]):
         if len(ids) == 0:
             return
         with open_cursor() as cur:

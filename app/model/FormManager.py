@@ -104,7 +104,7 @@ class FormManager:
         for q in updates['questions']:
             unused_question_ids.discard(q['id'])
             form.questions.append(FormManager._update_question(q, form.id))
-        QuestionRepository.delete_all_by_ids(unused_question_ids)
+        QuestionRepository.delete_all_by_ids(list(unused_question_ids))
 
         return form
 
@@ -134,7 +134,7 @@ class FormManager:
         for a in updates['answers']:
             unused_answer_ids.discard(a['id'])
             question.answers.append(FormManager._update_answer(a, question.id))
-        AnswerRepository.delete_all_by_ids(unused_answer_ids)
+        AnswerRepository.delete_all_by_ids(list(unused_answer_ids))
 
         return question
 
