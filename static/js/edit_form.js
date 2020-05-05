@@ -1,35 +1,57 @@
-let edit_form_barrier_queue = new BarrierEventQueue();
+'use strict';
 
-class TemplateProvider {
-    #map = new Map()
-
-    async getTemplate(name) {
-        if (this.#map.has(name))
-            return this.#map.get(name).cloneNode(true);
-
-        let response = await fetch(`/templates/${name}.html`);
-        if (!response.ok)
-            throw new Error(`Failed to load template. Status: ${response.status}`);
-
-        let template = await response.text();
-        let dom = new DOMParser().parseFromString(template, "text/html");
-        this.#map.set(name, dom);
-
-        return dom.cloneNode(true);
+let Form = {};
+Form.createEmpty = function () {
+    return {
+        id: 0,
+        title: '',
+        description: '',
+        form_type: 'poll',
+        questions: []
     }
+};
+Form.isChanged = function (old_form, new_form) {
+    return (
+        old_form.id === 0 || new_form.id === 0 ||
+        old_form.id !== new_form.id ||
+        old_form.title !== new_form.title ||
+        old_form.description !== new_form.description ||
+        old_form.form_type !== new_form.form_type
+        // TODO: compare answers
+    );
 }
 
+let Question = {};
+Question.createEmpty = function () {
+    return {
+        id: 0,
+        index: 0,
+        text: '',
+        question_type: 'single-variant',
+        answers: []
+    };
+};
+
+let Answer = {};
+Answer.createEmpty = function () {
+    return {
+        id: 0,
+        index: 0,
+        text: 0,
+        is_right: 0,
+        is_user_answer: 0
+    };
+};
+
 class AnswerViewFactory {
+    #types = new Map()
+
     registerType(typename, answerView) {
-
-    }
-
-    getTypes() {
-
+        this.#types.set(typename, answerView);
     }
 
     createView(typename) {
-
+        return this.#types.get(typename)();
     }
 }
 
@@ -88,7 +110,6 @@ class QuestionView {
 
     get question() {
         this.#element.querySelector('#question-number')
-        question = new Question()
     }
 
     onQuestionTypeSelected(event) {
@@ -127,66 +148,105 @@ class FreeAnswerView extends AnswerView {
 let templateProvider = new TemplateProvider();
 
 let answerViewFactory = new AnswerViewFactory();
-answerViewFactory.registerType('one', AnswerRadioListView);
-answerViewFactory.registerType('many', AnswerCheckboxListView);
-answerViewFactory.registerType('free', FreeAnswerView);
+answerViewFactory.registerType('single-variant', AnswerRadioListView);
+answerViewFactory.registerType('multiple-variants', AnswerCheckboxListView);
+answerViewFactory.registerType('free-answer', FreeAnswerView);
 
-function after_edit_form_init(func) {
-    edit_form_barrier_queue.schedule(func)
-}
+class FormView {
+    #current_form;
 
-let currentForm = empty_form();
-let title = null,
-    description = null,
-    form_type = null,
-    question_list = null;
+    #title;
+    #description;
+    #form_type;
+    #question_list;
 
-function init_edit_form() {
-    title = document.getElementById('form_title');
-    description = document.getElementById('form_description');
-    form_type = document.getElementById('form_type');
-    question_list = document.getElementById('question-list');
+    constructor() {
+        this.#title = document.getElementById('form_title');
+        this.#description = document.getElementById('form_description');
+        this.#form_type = document.getElementById('form_type');
+        this.#question_list = document.getElementById('question-list');
+    }
 
-    document.getElementById('save_button').onclick = onSave;
-    document.getElementById('publish_button').onclick = onPublish;
-    document.getElementById('cancel_button').onclick = onCancel;
+    _set_fields(form) {
+        this.#title.value = form.title;
+        this.#description.value = form.description;
+        this.#form_type.value = form.form_type;
 
-    edit_form_barrier_queue.unblock();
-}
+        this.#question_list.textContent = '';
+        for (let q of form.questions) {
+            let view = new QuestionView(templateProvider, answerViewFactory);
+            view.question = q;
+            this.#question_list.appendChild(view);
+        }
+    }
 
-function fill_fields_with_current_values() {
-    title.value = currentForm.title;
-    description.value = currentForm.description;
-    form_type.value = currentForm.form_type;
-    question_list.textContent = '';
-    for (let q of currentForm.questions) {
-        let view = new QuestionView(templateProvider, answerViewFactory);
-        view.question = q;
-        question_list.appendChild(view);
+    get current_form() {
+        return this.#current_form;
+    }
+
+    set current_form(form) {
+        this.#current_form = form;
+        this._set_fields(form);
+    }
+
+    get edited_form() {
+        return {
+            id: this.#current_form.id,
+            title: this.#title.value,
+            description: this.#description.value,
+            form_type: this.#form_type.value,
+            questions: [] // TODO: FETCH QUESTIONS
+        };
+    }
+
+    get is_changed() {
+        return Form.isChanged(this.current_form, this.edited_form);
     }
 }
 
-function is_changed() {
-    return currentForm.id === 0 ||
-        currentForm.title !== title.value ||
-        currentForm.description !== description.value ||
-        currentForm.form_type !== form_type.value;
+
+let form_view;
+
+let on_form_init = new BarrierEvent();
+
+function init_page() {
+    form_view = new FormView();
+    on_form_init.trigger();
+
+    document.getElementById('save_button').onclick = on_save;
+    document.getElementById('publish_button').onclick = on_publish;
+    document.getElementById('cancel_button').onclick = on_cancel;
 }
 
 function set_current_form(form) {
-    currentForm = form;
-
-    after_edit_form_init(fill_fields_with_current_values);
+    on_form_init.do_after(function () {
+        form_view.current_form = form
+    });
 }
 
+function load_form(form_id) {
+    if (form_id === 0) {
+        set_current_form(Form.createEmpty());
+    } else {
+        API.get_form(form_id)
+            .on_load(set_current_form)
+            .on_error(show_error_message)
+            .send();
+    }
+}
+
+function get_form_id() {
+    let args = new URLSearchParams(window.location.search);
+    let form_id = parseInt(args.get('form_id'));
+    if (isNaN(form_id) || form_id < 0)
+        return 0;
+    return form_id;
+}
+
+load_form(get_form_id());
+
 function send_form_updates(publish, callback) {
-    let form = {
-        id: currentForm.id,
-        title: title.value,
-        description: description.value,
-        form_type: form_type.value,
-        questions: []
-    };
+    let form = form_view.edited_form;
 
     API.update_form(form, publish)
         .on_load(function (result) {
@@ -201,18 +261,18 @@ function go_to_dashboard() {
     window.location.href = '/dashboard';
 }
 
-function onSave() {
+function on_save() {
     send_form_updates(false, null);
 }
 
-function onPublish() {
+function on_publish() {
     show_publish_confirmation_dialog_from_edit(function () {
         send_form_updates(true, go_to_dashboard);
     });
 }
 
-function onCancel() {
-    if (!is_changed()) {
+function on_cancel() {
+    if (!form_view.is_changed) {
         go_to_dashboard();
         return;
     }
@@ -225,37 +285,4 @@ function onCancel() {
         .show();
 }
 
-function empty_form() {
-    return {
-        id: 0,
-        title: '',
-        description: '',
-        form_type: 'poll',
-        questions: []
-    }
-}
-
-function load_form(form_id) {
-    if (form_id === 0) {
-        set_current_form(empty_form());
-        return;
-    }
-
-    API.get_form(form_id)
-        .on_load(set_current_form)
-        .on_error(show_error_message)
-        .send();
-}
-
-function get_form_id() {
-    let args = new URLSearchParams(window.location.search);
-    let form_id = parseInt(args.get('form_id'));
-    if (isNaN(form_id) || form_id < 0)
-        return 0;
-    return form_id;
-}
-
-
-load_form(get_form_id());
-
-after_document_loaded(init_edit_form);
+document_loaded.do_after(init_page);

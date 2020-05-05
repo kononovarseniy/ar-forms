@@ -1,37 +1,33 @@
+'use strict';
+
 function do_callback(func, ...args) {
     if (func)
         func.apply(this, args);
 }
 
-class BarrierEventQueue {
+function toggle_class(element, className) {
+    if (element.classList.contains(className))
+        element.classList.remove(className)
+    else
+        element.classList.add(className)
+}
+
+class BarrierEvent {
     #blocked = true
     #queue = []
 
-    schedule(func) {
+    do_after(func) {
         if (!this.#blocked)
             func();
         else
             this.#queue.push(func);
     }
 
-    unblock() {
+    trigger() {
         this.#blocked = false;
         for (let func of this.#queue)
             func();
     }
-}
-
-let modals_barrier_queue = new BarrierEventQueue();
-
-function after_modals_init(func) {
-    modals_barrier_queue.schedule(func)
-}
-
-function after_document_loaded(callback) {
-    if (document.readyState !== 'loading')
-        callback();
-    else
-        document.addEventListener('DOMContentLoaded', callback)
 }
 
 class API {
@@ -156,16 +152,35 @@ class Modal {
     }
 }
 
-function toggle_class(element, className) {
-    if (element.classList.contains(className))
-        element.classList.remove(className)
-    else
-        element.classList.add(className)
+class TemplateProvider {
+    #map = new Map()
+
+    async getTemplate(name) {
+        if (this.#map.has(name))
+            return this.#map.get(name).cloneNode(true);
+
+        let response = await fetch(`/templates/${name}.html`);
+        if (!response.ok)
+            throw new Error(`Failed to load template. Status: ${response.status}`);
+
+        let template = await response.text();
+        let dom = new DOMParser().parseFromString(template, "text/html");
+        this.#map.set(name, dom);
+
+        return dom.cloneNode(true);
+    }
 }
+
+let modals_init = new BarrierEvent();
+
+let document_loaded = new BarrierEvent();
+
+document.addEventListener('DOMContentLoaded', () => document_loaded.trigger())
+
 
 function init_menu() {
     let menu = document.getElementById('menu');
-    if (menu == null) // This page do not have menu
+    if (menu == null) // Current page does not have a menu
         return;
 
     let menuLink = document.getElementById('menu-link'),
@@ -194,6 +209,13 @@ function init_menu() {
     };
 }
 
+function init_modals() {
+    for (let element of document.getElementsByClassName('modal')) {
+        element.modal = new Modal(element);
+    }
+    modals_init.trigger();
+}
+
 function init_buttons() {
     document.getElementsByName('new_form_button')
         .forEach((e) => e.onclick = onNewFormButtonClick)
@@ -206,13 +228,6 @@ function init_buttons() {
 
     document.getElementsByName('button-publish')
         .forEach((e) => e.onclick = onPublishButtonClick)
-}
-
-function init_modals() {
-    for (let element of document.getElementsByClassName('modal')) {
-        element.modal = new Modal(element);
-    }
-    modals_barrier_queue.unblock();
 }
 
 function checkRegistrationForm() {
@@ -228,7 +243,7 @@ function checkRegistrationForm() {
 }
 
 function show_error_message(message) {
-    after_modals_init(function () {
+    modals_init.do_after(function () {
         let element = document.getElementById('modal-error');
         element.querySelector('[name=modal-error-text]').textContent = message;
         element.modal.show();
@@ -236,7 +251,7 @@ function show_error_message(message) {
 }
 
 function show_message(message) {
-    after_modals_init(function () {
+    modals_init.do_after(function () {
         let element = document.getElementById('modal-info');
         element.querySelector('[name=modal-error-text]').textContent = message;
         element.modal.show();
@@ -244,7 +259,7 @@ function show_message(message) {
 }
 
 function show_delete_confirmation_dialog(form_name, callback) {
-    after_modals_init(function () {
+    modals_init.do_after(function () {
         let element = document.getElementById('modal-confirm-delete');
         element.querySelector('[name=modal-form-name]').textContent = form_name;
         element.modal.on_positive(callback).show();
@@ -252,7 +267,7 @@ function show_delete_confirmation_dialog(form_name, callback) {
 }
 
 function show_publish_confirmation_dialog(form_name, callback) {
-    after_modals_init(function () {
+    modals_init.do_after(function () {
         let element = document.getElementById('modal-confirm-publish');
         element.querySelector('[name=modal-form-name]').textContent = form_name;
         element.modal.on_positive(callback).show();
@@ -260,7 +275,7 @@ function show_publish_confirmation_dialog(form_name, callback) {
 }
 
 function show_publish_confirmation_dialog_from_edit(callback) {
-    after_modals_init(function () {
+    modals_init.do_after(function () {
         let element = document.getElementById('modal-confirm-publish-from-edit');
         element.modal.on_positive(callback).show();
     });
@@ -270,9 +285,9 @@ function go_to_edit_form_page(form_id = 0) {
     location.href = `/edit_form?form_id=${form_id}`
 }
 
-after_document_loaded(init_menu)
-after_document_loaded(init_buttons)
-after_document_loaded(init_modals)
+document_loaded.do_after(init_menu)
+document_loaded.do_after(init_buttons)
+document_loaded.do_after(init_modals)
 
 function onNewFormButtonClick(event) {
     go_to_edit_form_page();
