@@ -33,6 +33,24 @@ form {
   }
 }
 
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 1em;
+  transition: 0.3s;
+
+  &:hover {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .card-header {
+    padding: 0 1em;
+  }
+
+  .card-body {
+    padding: 1em;
+  }
+}
+
 .text-error {
   color: maroon;
 }
@@ -145,6 +163,11 @@ form {
   background-image: url('/static/img/publish-white.png');
 }
 
+.add-button-icon {
+  @button-icon();
+  background-image: url('/static/img/add-white.png');
+}
+
 .cancel-button-icon {
   @button-icon();
   background-image: url('/static/img/cancel-white.png');
@@ -205,6 +228,10 @@ td.fit-width {
       }
     }
   }
+}
+
+.question-container {
+  margin: 2em 0;
 }
 
 /* Add Animation */

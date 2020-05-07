@@ -11,14 +11,21 @@ Form.createEmpty = function () {
     }
 };
 Form.isChanged = function (old_form, new_form) {
-    return (
+    let form_changed =
         old_form.id === 0 || new_form.id === 0 ||
         old_form.id !== new_form.id ||
         old_form.title !== new_form.title ||
         old_form.description !== new_form.description ||
-        old_form.form_type !== new_form.form_type
-        // TODO: compare questions
-    );
+        old_form.form_type !== new_form.form_type;
+    if (form_changed)
+        return true;
+    if (old_form.questions.length !== new_form.questions.length)
+        return true;
+    for (let i = 0; i < old_form.questions.length; i++) {
+        if (Question.isChanged(old_form.questions[i], new_form.questions[i]))
+            return true;
+    }
+    return false;
 }
 
 let Question = {};
@@ -35,7 +42,7 @@ Question.isChanged = function (old_q, new_q) {
         old_q.id === 0 || new_q === 0 ||
         old_q.id !== new_q.id ||
         old_q.text !== new_q.text ||
-        old_q.type !== new_q.type
+        old_q.question_type !== new_q.question_type
         // TODO: compare answers
     )
 }
@@ -180,6 +187,7 @@ class FormView {
     #description;
     #form_type;
     #question_list;
+    #add_question_button
 
     #question_views;
 
@@ -188,12 +196,30 @@ class FormView {
         this.#description = document.getElementById('form_description');
         this.#form_type = document.getElementById('form_type');
         this.#question_list = document.getElementById('question-list');
+        this.#add_question_button = document.getElementById('add_question_button');
+        this.#add_question_button.onclick = () => this._on_add_question_click();
     }
 
     _update_question_indices() {
         this.#question_views.forEach((view, i) => {
             view.question_index = i + 1;
         });
+    }
+
+    _on_delete_question(view) {
+        let index = this.#question_views.indexOf(view);
+        this.#question_views.splice(index, 1);
+        view.remove();
+        this._update_question_indices();
+    }
+
+    _add_question(question) {
+        let view = new QuestionView();
+        view.current_question = question;
+        view.on_delete = () => this._on_delete_question(view);
+
+        this.#question_list.append(view.element);
+        this.#question_views.push(view);
     }
 
     _set_fields(form) {
@@ -203,19 +229,12 @@ class FormView {
 
         this.#question_list.textContent = '';
         this.#question_views = [];
-        for (let q of form.questions) {
-            let view = new QuestionView();
-            view.current_question = q;
-            view.on_delete = () => {
-                let index = this.#question_views.indexOf(view);
-                this.#question_views.splice(index, 1);
-                view.remove();
-                this._update_question_indices();
-            };
+        form.questions.forEach((q) => this._add_question(q));
+        this._update_question_indices();
+    }
 
-            this.#question_list.append(view.element);
-            this.#question_views.push(view);
-        }
+    _on_add_question_click() {
+        this._add_question(Question.createEmpty());
         this._update_question_indices();
     }
 
