@@ -25,7 +25,6 @@ let Question = {};
 Question.createEmpty = function () {
     return {
         id: 0,
-        index: 0,
         text: '',
         question_type: 'single-variant',
         answers: []
@@ -35,7 +34,6 @@ Question.isChanged = function (old_q, new_q) {
     return (
         old_q.id === 0 || new_q === 0 ||
         old_q.id !== new_q.id ||
-        old_q.index !== new_q.index ||
         old_q.text !== new_q.text ||
         old_q.type !== new_q.type
         // TODO: compare answers
@@ -46,7 +44,6 @@ let Answer = {};
 Answer.createEmpty = function () {
     return {
         id: 0,
-        index: 0,
         text: 0,
         is_right: 0,
         is_user_answer: 0
@@ -70,6 +67,7 @@ class QuestionView {
     #element;
     #answer_view;
     #current_question;
+    #question_index;
     on_delete;
 
     constructor() {
@@ -95,6 +93,15 @@ class QuestionView {
         this.#element.container.remove();
     }
 
+    get question_index() {
+        return this.#question_index;
+    }
+
+    set question_index(index) {
+        this.#question_index = index;
+        this.#element.index.textContent = index;
+    }
+
     get current_question() {
         return this.#current_question;
     }
@@ -102,7 +109,6 @@ class QuestionView {
     set current_question(question) {
         this.#current_question = question;
 
-        this.#element.index.textContent = question.index;
         this.#element.text.value = question.text;
         this.#element.question_type.value = question.question_type;
         this.#element.answers.textContent = '';
@@ -115,7 +121,6 @@ class QuestionView {
     get edited_question() {
         return {
             id: this.#current_question.id,
-            index: this.#current_question.index,
             text: this.#element.text.value,
             question_type: this.#element.question_type.value,
             answers: this.#answer_view.edited_answers
@@ -185,6 +190,12 @@ class FormView {
         this.#question_list = document.getElementById('question-list');
     }
 
+    _update_question_indices() {
+        this.#question_views.forEach((view, i) => {
+            view.question_index = i + 1;
+        });
+    }
+
     _set_fields(form) {
         this.#title.value = form.title;
         this.#description.value = form.description;
@@ -197,13 +208,15 @@ class FormView {
             view.current_question = q;
             view.on_delete = () => {
                 let index = this.#question_views.indexOf(view);
-                this.#question_views.splice(index);
+                this.#question_views.splice(index, 1);
                 view.remove();
+                this._update_question_indices();
             };
 
             this.#question_list.append(view.element);
             this.#question_views.push(view);
         }
+        this._update_question_indices();
     }
 
     get current_form() {

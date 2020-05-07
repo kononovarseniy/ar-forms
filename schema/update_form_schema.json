@@ -31,17 +31,12 @@
                 "type": "object",
                 "required": [
                     "id",
-                    "index",
                     "text",
                     "question_type",
                     "answers"
                 ],
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "minimum": 0
-                    },
-                    "index": {
                         "type": "integer",
                         "minimum": 0
                     },
@@ -62,16 +57,11 @@
                             "type": "object",
                             "required": [
                                 "id",
-                                "index",
                                 "text",
                                 "is_right"
                             ],
                             "properties": {
                                 "id": {
-                                    "type": "integer",
-                                    "minimum": 0
-                                },
-                                "index": {
                                     "type": "integer",
                                     "minimum": 0
                                 },

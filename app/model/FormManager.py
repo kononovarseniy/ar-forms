@@ -39,8 +39,10 @@ class FormManager:
             raise PermissionError
 
         form.questions = list(QuestionRepository.get_all_by_form_id(form_id))
+        form.questions.sort(key=lambda x: x.index)
         for q in form.questions:
             q.answers = list(AnswerRepository.get_all_by_question_id(q.id))
+            q.answers.sort(key=lambda x: x.index)
 
         return form
 
@@ -101,15 +103,15 @@ class FormManager:
 
         unused_question_ids = set(q.id for q in old_form_questions)
         form.questions = []
-        for q in updates['questions']:
+        for i, q in enumerate(updates['questions']):
             unused_question_ids.discard(q['id'])
-            form.questions.append(FormManager._update_question(q, form.id))
+            form.questions.append(FormManager._update_question(q, form.id, i))
         QuestionRepository.delete_all_by_ids(list(unused_question_ids))
 
         return form
 
     @staticmethod
-    def _update_question(updates: Dict[str, Any], form_id: int) -> Question:
+    def _update_question(updates: Dict[str, Any], form_id: int, index: int) -> Question:
         q_id = int(updates['id'])
         is_new = q_id == 0
 
@@ -122,7 +124,7 @@ class FormManager:
                 raise KeyError("Question not found")
             old_answers = AnswerRepository.get_all_by_question_id(q_id)
 
-        question.index = updates['index']
+        question.index = index
         question.text = updates['text']
         question.set_question_type(QuestionTypeRepository.get_by_name(updates['question_type']))
 
@@ -131,15 +133,15 @@ class FormManager:
 
         unused_answer_ids = set(a.id for a in old_answers)
         question.answers = []
-        for a in updates['answers']:
+        for i, a in enumerate(updates['answers']):
             unused_answer_ids.discard(a['id'])
-            question.answers.append(FormManager._update_answer(a, question.id))
+            question.answers.append(FormManager._update_answer(a, question.id, i))
         AnswerRepository.delete_all_by_ids(list(unused_answer_ids))
 
         return question
 
     @staticmethod
-    def _update_answer(updates: Dict[str, Any], q_id: int) -> Answer:
+    def _update_answer(updates: Dict[str, Any], q_id: int, index: int) -> Answer:
         a_id = updates['id']
         is_new = a_id == 0
         if is_new:
@@ -149,7 +151,7 @@ class FormManager:
             if not answer:
                 raise KeyError("Answer not found")
 
-        answer.index = updates['index']
+        answer.index = index
         answer.text = updates['text']
         answer.is_right = updates['is_right']
 

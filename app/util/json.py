@@ -29,7 +29,6 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(o, Question):
             return {
                 'id': o.id,
-                'index': o.index,
                 'text': o.text,
                 'question_type': o.question_type,
                 'form_id': o.form_id,
@@ -38,7 +37,6 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(o, Answer):
             return {
                 'id': o.id,
-                'index': o.index,
                 'text': o.text,
                 'is_right': o.is_right,
                 'is_user_variant': o.is_user_variant,
