@@ -124,7 +124,7 @@ class FormManager:
 
         question.index = updates['index']
         question.text = updates['text']
-        question.set_question_type(QuestionTypeRepository.get_by_name(updates['type']))
+        question.set_question_type(QuestionTypeRepository.get_by_name(updates['question_type']))
 
         # Insert it before answers. It allows us to to get valid id
         QuestionRepository.update_or_insert(question)
