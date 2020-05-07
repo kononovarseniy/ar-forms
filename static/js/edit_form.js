@@ -17,7 +17,7 @@ Form.isChanged = function (old_form, new_form) {
         old_form.title !== new_form.title ||
         old_form.description !== new_form.description ||
         old_form.form_type !== new_form.form_type
-        // TODO: compare answers
+        // TODO: compare questions
     );
 }
 
@@ -31,6 +31,16 @@ Question.createEmpty = function () {
         answers: []
     };
 };
+Question.isChanged = function (old_q, new_q) {
+    return (
+        old_q.id === 0 || new_q === 0 ||
+        old_q.id !== new_q.id ||
+        old_q.index !== new_q.index ||
+        old_q.text !== new_q.text ||
+        old_q.type !== new_q.type
+        // TODO: compare answers
+    )
+}
 
 let Answer = {};
 Answer.createEmpty = function () {
@@ -51,65 +61,65 @@ class AnswerViewFactory {
     }
 
     createView(typename) {
-        return this.#types.get(typename)();
+        let ctor = this.#types.get(typename);
+        return new ctor();
     }
 }
 
 class QuestionView {
-    #templateProvider
-    #answerViewFactory
+    #element;
+    #answer_view;
+    #current_question;
+    on_delete;
 
-    #element = {
-        dom: null,
-        number: null,
-        type: null,
-        text: null,
-        answers: null
-    }
-
-    #question = {
-        number: 0,
-        type: 'one',
-        text: '',
-        answers: []
-    }
-
-    constructor(templateProvider, answerViewFactory) {
-
-    }
-
-    async create(templateProvider, answerViewFactory) {
-        let self = new QuestionView();
-        self.#templateProvider = templateProvider;
-        self.#answerViewFactory = answerViewFactory;
-        await self.buildElement();
-        return self;
-    }
-
-    async buildElement() {
-        let element = await this.#templateProvider.getTemplate('question');
-        let number = element.querySelector('#question-number');
-        let text = element.querySelector('#question-text');
-        let type = element.querySelector('#question-type');
-        let answers = this.#answerViewFactory.createView();
-        res.textContent = question.number;
-        res.value = question.text;
-        let selector = res
-        selector.value = question.type;
-        selector.onclick = (event) => this.onQuestionTypeSelected(event);
-        this.#element = res;
+    constructor() {
+        let template = document.getElementById('question-template')
+        let container = template.content.firstElementChild.cloneNode(true);
+        this.#element = {
+            container: container,
+            index: container.querySelector('#question-index'),
+            text: container.querySelector('#question-text'),
+            question_type: container.querySelector('#question-type'),
+            answers: container.querySelector('#answers-container'),
+            delete_button: container.querySelector('#delete-button')
+        };
+        this.#element.delete_button.onclick = () => this.on_delete();
+        this.#element.question_type.onclick = (event) => this.onQuestionTypeSelected(event);
     }
 
     get element() {
-        return this.#element;
+        return this.#element.container;
     }
 
-    set question(value) {
-
+    remove() {
+        this.#element.container.remove();
     }
 
-    get question() {
-        this.#element.querySelector('#question-number')
+    get current_question() {
+        return this.#current_question;
+    }
+
+    set current_question(question) {
+        this.#current_question = question;
+
+        this.#element.index.textContent = question.index;
+        this.#element.text.value = question.text;
+        this.#element.question_type.value = question.question_type;
+        this.#element.answers.textContent = '';
+
+        this.#answer_view = answerViewFactory.createView(question.question_type);
+        this.#answer_view.current_answers = question.answers;
+        this.#element.answers.append(this.#answer_view.element);
+    }
+
+    get edited_question() {
+        return {
+            id: this.#current_question.id,
+            index: this.#current_question.index,
+            text: this.#element.text.value,
+            question_type: this.#element.question_type.value,
+            answers: this.#answer_view.edited_answers
+        }
     }
 
     onQuestionTypeSelected(event) {
@@ -124,8 +134,16 @@ class AnswerView {
         return this._element;
     }
 
-    get answers() {
+    get edited_answers() {
         return [];
+    }
+
+    get current_answers() {
+        return [];
+    }
+
+    set current_answers(value) {
+
     }
 }
 
@@ -145,8 +163,6 @@ class FreeAnswerView extends AnswerView {
 
 }
 
-let templateProvider = new TemplateProvider();
-
 let answerViewFactory = new AnswerViewFactory();
 answerViewFactory.registerType('single-variant', AnswerRadioListView);
 answerViewFactory.registerType('multiple-variants', AnswerCheckboxListView);
@@ -159,6 +175,8 @@ class FormView {
     #description;
     #form_type;
     #question_list;
+
+    #question_views;
 
     constructor() {
         this.#title = document.getElementById('form_title');
@@ -173,10 +191,18 @@ class FormView {
         this.#form_type.value = form.form_type;
 
         this.#question_list.textContent = '';
+        this.#question_views = [];
         for (let q of form.questions) {
-            let view = new QuestionView(templateProvider, answerViewFactory);
-            view.question = q;
-            this.#question_list.appendChild(view);
+            let view = new QuestionView();
+            view.current_question = q;
+            view.on_delete = () => {
+                let index = this.#question_views.indexOf(view);
+                this.#question_views.splice(index);
+                view.remove();
+            };
+
+            this.#question_list.append(view.element);
+            this.#question_views.push(view);
         }
     }
 
@@ -195,7 +221,7 @@ class FormView {
             title: this.#title.value,
             description: this.#description.value,
             form_type: this.#form_type.value,
-            questions: [] // TODO: FETCH QUESTIONS
+            questions: this.#question_views.map((q) => q.edited_question)
         };
     }
 

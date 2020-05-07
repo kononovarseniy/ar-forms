@@ -13,20 +13,24 @@ function toggle_class(element, className) {
 }
 
 class BarrierEvent {
-    #blocked = true
+    #triggered = false
     #queue = []
 
     do_after(func) {
-        if (!this.#blocked)
+        if (this.#triggered)
             func();
         else
             this.#queue.push(func);
     }
 
     trigger() {
-        this.#blocked = false;
+        this.#triggered = true;
         for (let func of this.#queue)
             func();
+    }
+
+    get triggered() {
+        return this.#triggered;
     }
 }
 
@@ -149,25 +153,6 @@ class Modal {
 
     hide() {
         this.#modal.style.display = 'none';
-    }
-}
-
-class TemplateProvider {
-    #map = new Map()
-
-    async getTemplate(name) {
-        if (this.#map.has(name))
-            return this.#map.get(name).cloneNode(true);
-
-        let response = await fetch(`/templates/${name}.html`);
-        if (!response.ok)
-            throw new Error(`Failed to load template. Status: ${response.status}`);
-
-        let template = await response.text();
-        let dom = new DOMParser().parseFromString(template, "text/html");
-        this.#map.set(name, dom);
-
-        return dom.cloneNode(true);
     }
 }
 
