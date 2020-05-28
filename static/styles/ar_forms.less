@@ -99,6 +99,12 @@ form {
   font-size: 125%;
 }
 
+.button-center-quarter {
+  margin: 1em auto;
+  display: block;
+  width: 25%
+}
+
 .icon-published {
   display: block;
   height: 24px;
@@ -232,6 +238,50 @@ td.fit-width {
 
 .question-container {
   margin: 2em 0;
+}
+
+.question-body {
+  #answers-container {
+    margin: 0 0 0 0.5em;
+  }
+
+  #question-type-selector {
+    margin: 0 0.5em 0 0;
+
+    #question-type {
+      width: 100%
+    }
+  }
+
+  #add-answer-button {
+    width: 100%;
+    margin: 0.25em auto 0;
+  }
+}
+
+@media (min-width: 48em) {
+  .question-body {
+    .border-right {
+      border-right: #eee solid 1px;
+      margin-right: -1px;
+    }
+  }
+}
+
+.free-answer-div {
+  #free-answer-text {
+    width: 100%;
+  }
+}
+
+.answer-radio-div {
+  display: grid;
+  grid-template-columns: min-content auto min-content;
+  grid-column-gap: 0.5em;
+
+  .delete-answer-button {
+    margin: 0.25em 0
+  }
 }
 
 /* Add Animation */

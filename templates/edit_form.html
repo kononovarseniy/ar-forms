@@ -29,18 +29,55 @@
                 <textarea id="question-text" class="pure-u-1" rows="2"
                           placeholder="Question text"></textarea>
 
-                <div id="question-type-selector" class="pure-u-1 pure-u-md-1-5"
-                     style="border-right: #eee solid 1px; margin-right: -1px;">
-                    <label>Question type:</label>
-                    <select id="question-type">
-                        <option value="single-variant">Single variant</option>
-                        <option value="multiple-variants">Multiple variants</option>
-                        <option value="free-answer">Free answer</option>
-                    </select>
+                <div class="pure-u-1 pure-u-md-1-5 border-right">
+                    <div id="question-type-selector">
+                        <label for="question-type">Question type:</label>
+                        <select id="question-type">
+                            <option value="single-variant">Single variant</option>
+                            <option value="multiple-variants">Multiple variants</option>
+                            <option value="free-answer">Free answer</option>
+                        </select>
+                    </div>
                 </div>
-                <div id="answers-container" class="pure-u-1 pure-u-md-4-5"></div>
+                <div class="pure-u-1 pure-u-md-4-5">
+                    <div id="answers-container"></div>
+                </div>
             </div>
         </div>
+    </div>
+</template>
+<template id="answer-list-template">
+    <div>
+        <div id="answer-list"></div>
+        <button type="button" id="add-answer-button" class="pure-button button-success">
+            Add variant
+        </button>
+    </div>
+</template>
+<template id="answer-radio-template">
+    <div class="answer-radio-div">
+        <label for="answer-text" class="pure-radio">
+            <input type="radio" id="answer-is-right" name="answer-is-right-radio"/>
+        </label>
+        <input type="text" id="answer-text">
+        <button type="button" id="delete-answer-button" class="pure-button button-error delete-answer-button">Delete
+        </button>
+    </div>
+</template>
+<template id="answer-checkbox-template">
+    <div class="answer-radio-div">
+        <label for="answer-text" class="pure-checkbox">
+            <input type="checkbox" id="answer-is-right"/>
+        </label>
+        <input type="text" id="answer-text">
+        <button type="button" id="delete-answer-button" class="pure-button button-error delete-answer-button">Delete
+        </button>
+    </div>
+</template>
+<template id="free-answer-template">
+    <div class="free-answer-div">
+        <label for="free-answer-text">User will be prompted to enter some text</label>
+        <input type="text" id="free-answer-text" disabled/>
     </div>
 </template>
 {% include 'modals.html' %}
@@ -106,8 +143,7 @@
                         <div id="question-list"></div>
                         <div id="form-view-footer">
                             <button type="button" id="add_question_button"
-                                    class="pure-button button-success button-large"
-                                    style="margin: 1em auto; display: block; width: 25%">
+                                    class="pure-button button-success button-large button-center-quarter">
                                 <span>Add question</span>
                                 <span class="add-button-icon"></span>
                             </button>

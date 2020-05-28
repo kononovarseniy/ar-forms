@@ -51,9 +51,9 @@ let Answer = {};
 Answer.createEmpty = function () {
     return {
         id: 0,
-        text: 0,
-        is_right: 0,
-        is_user_answer: 0
+        text: '',
+        is_right: false,
+        is_user_answer: false
     };
 };
 
@@ -135,16 +135,15 @@ class QuestionView {
     }
 
     onQuestionTypeSelected(event) {
-
+        let question = this.edited_question;
+        this.#element.answers.textContent = '';
+        this.#answer_view = answerViewFactory.createView(question.question_type);
+        this.#answer_view.current_answers = question.answers;
+        this.#element.answers.append(this.#answer_view.element);
     }
 }
 
 class AnswerView {
-    _element
-
-    get element() {
-        return this._element;
-    }
 
     get edited_answers() {
         return [];
@@ -159,20 +158,159 @@ class AnswerView {
     }
 }
 
-class AnswerListView extends AnswerView {
+class AnswerVariantView {
+    #element
+    #current_answer
+    on_delete
 
+    get element() {
+        return this.#element.container;
+    }
+
+    remove() {
+        this.#element.container.remove();
+    }
+
+    constructor(template) {
+        let container = template.cloneNode(true);
+        this.#element = {
+            container: container,
+            check: container.querySelector("#answer-is-right"),
+            text: container.querySelector("#answer-text"),
+            delete_button: container.querySelector("#delete-answer-button")
+        }
+        this.#element.delete_button.onclick = () => this.on_delete();
+    }
+
+    get current_answer() {
+        return this.#current_answer;
+    }
+
+    set current_answer(answer) {
+        this.#current_answer = answer;
+        this.#element.check.checked = answer.is_right;
+        this.#element.text.value = answer.text;
+    }
+
+    get edited_answer() {
+        return {
+            id: this.#current_answer.id,
+            text: this.#element.text.value,
+            is_right: this.#element.check.checked,
+            is_user_answer: false
+        };
+    }
 }
 
-class AnswerRadioListView extends AnswerListView {
+class AnswerListView extends AnswerView {
+    #element
+    #answer_template
+    #current_answers
+    #answer_views
 
+    get element() {
+        return this.#element.container;
+    }
+
+    constructor(answer_template) {
+        super();
+
+        this.#answer_template = answer_template;
+
+        let template = document.getElementById('answer-list-template')
+        let container = template.content.firstElementChild.cloneNode(true);
+        this.#element = {
+            container: container,
+            list: container.querySelector("#answer-list"),
+            add_button: container.querySelector("#add-answer-button")
+        }
+        this.#element.add_button.onclick = () => this._on_add_click();
+    }
+
+    get current_answers() {
+        return this.#current_answers;
+    }
+
+    set current_answers(answers) {
+        if (answers.length === 0)
+            answers = [Answer.createEmpty()];
+        this.#current_answers = answers;
+
+        this.#element.list.textContent = '';
+        this.#answer_views = [];
+        answers.forEach((a) => this._add_answer(a));
+    }
+
+    get edited_answers() {
+        return this.#answer_views.map((a) => a.edited_answer);
+    }
+
+    _add_answer(answer) {
+        let view = new AnswerVariantView(this.#answer_template);
+        view.current_answer = answer;
+        view.on_delete = () => this._on_delete_answer(view);
+        this.#answer_views.push(view);
+        this.#element.list.append(view.element);
+    }
+
+    _on_add_click() {
+        this._add_answer(Answer.createEmpty());
+    }
+
+    _on_delete_answer(view) {
+        let index = this.#answer_views.indexOf(view);
+        this.#answer_views.splice(index, 1);
+        view.remove();
+    }
+}
+
+let answer_radio_list_id_counter = 0;
+
+class AnswerRadioListView extends AnswerListView {
+    constructor() {
+        let template = document.getElementById('answer-radio-template')
+            .content.firstElementChild.cloneNode(true);
+
+        template.querySelector("#answer-is-right").name += answer_radio_list_id_counter++;
+        super(template);
+    }
 }
 
 class AnswerCheckboxListView extends AnswerListView {
-
+    constructor() {
+        let template = document.getElementById('answer-checkbox-template')
+            .content.firstElementChild.cloneNode(true);
+        super(template);
+    }
 }
 
 class FreeAnswerView extends AnswerView {
+    #element
 
+    get element() {
+        return this.#element.container;
+    }
+
+    constructor() {
+        super();
+
+        let template = document.getElementById('free-answer-template')
+        let container = template.content.firstElementChild.cloneNode(true);
+        this.#element = {
+            container: container
+        }
+    }
+
+    get current_answers() {
+        return [];
+    }
+
+    set current_answers(answers) {
+    }
+
+    get edited_answers() {
+        return [];
+    }
 }
 
 let answerViewFactory = new AnswerViewFactory();
