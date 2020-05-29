@@ -21,10 +21,9 @@ Form.isChanged = function (old_form, new_form) {
         return true;
     if (old_form.questions.length !== new_form.questions.length)
         return true;
-    for (let i = 0; i < old_form.questions.length; i++) {
+    for (let i = 0; i < old_form.questions.length; i++)
         if (Question.isChanged(old_form.questions[i], new_form.questions[i]))
             return true;
-    }
     return false;
 }
 
@@ -38,13 +37,19 @@ Question.createEmpty = function () {
     };
 };
 Question.isChanged = function (old_q, new_q) {
-    return (
-        old_q.id === 0 || new_q === 0 ||
+    let question_changed =
+        old_q.id === 0 || new_q.id === 0 ||
         old_q.id !== new_q.id ||
         old_q.text !== new_q.text ||
-        old_q.question_type !== new_q.question_type
-        // TODO: compare answers
-    )
+        old_q.question_type !== new_q.question_type;
+    if (question_changed)
+        return true;
+    if (old_q.answers.length !== new_q.answers.length)
+        return true;
+    for (let i = 0; i < old_q.answers.length; i++)
+        if (Answer.isChanged(old_q.answers[i], new_q.answers[i]))
+            return true;
+    return false;
 }
 
 let Answer = {};
@@ -56,6 +61,15 @@ Answer.createEmpty = function () {
         is_user_answer: false
     };
 };
+Answer.isChanged = function (old_a, new_a) {
+    return (
+        old_a.id === 0 || new_a.id === 0 ||
+        old_a.id !== new_a.id ||
+        old_a.text !== new_a.text ||
+        old_a.is_right !== new_a.is_right ||
+        old_a.is_user_answer !== new_a.is_user_answer
+    );
+}
 
 class QuestionEditor {
     #element;
