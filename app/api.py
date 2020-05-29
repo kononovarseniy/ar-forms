@@ -89,8 +89,9 @@ def execute_api_method(method):
 def get_form():
     user = SessionManager.get_user()
     form_ids = int(request.args['form_id'])
+    get_answers = request.args['get_answers'].lower() == 'true'
 
-    form = FormManager.get_form_by_id(user, form_ids)
+    form = FormManager.get_form_by_id(user, form_ids, get_answers)
     if form:
         return form
     else:

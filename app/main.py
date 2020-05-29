@@ -102,3 +102,9 @@ def dashboard(user):
 @authorized_only
 def edit_form(user):
     return render_template('edit_form.html', user=user)
+
+
+@app.route('/fill_form')
+@authorized_only
+def fill_form(user):
+    return render_template('fill_form.html', user=user)

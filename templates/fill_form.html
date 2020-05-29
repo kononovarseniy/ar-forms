@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ArForms</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png"/>
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+
+    <link rel="stylesheet/less" type="text/css" href="/static/styles/fill_form.less"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.9.0/less.min.js"></script>
+    <script src="/static/js/ar_forms.js"></script>
+    <script src="/static/js/fill_form.js"></script>
+</head>
+<body>
+<template id="question-template">
+    <div class="question-container card">
+        <div class="card-header">
+            <h2 class="content-subhead"><span id="question-index"></span>) <span id="question-text"></span></h2>
+        </div>
+        <div class="card-body">
+            <div class="question-body">
+                <div id="answers-container"></div>
+            </div>
+        </div>
+    </div>
+</template>
+<template id="answer-list-template">
+    <div id="answer-list"></div>
+</template>
+<template id="answer-radio-template">
+    <label for="answer-text" class="pure-radio">
+        <input type="radio" id="answer-is-right" name="answer-is-right-radio"/>
+        <span id="answer-text"></span>
+    </label>
+</template>
+<template id="answer-checkbox-template">
+    <label for="answer-text" class="pure-checkbox">
+        <input type="checkbox" id="answer-is-right"/>
+        <span id="answer-text"></span>
+    </label>
+</template>
+<template id="free-answer-template">
+    <div>
+        <label for="free-answer-text">Enter your answer:</label>
+        <input type="text" id="free-answer-text" style="width: 100%"/>
+    </div>
+</template>
+{% include 'modals.html' %}
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="#menu" id="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="#">Edit form</a>
+
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item menu-item-button">
+                    <button id="send_button" class="pure-button button-success">
+                        <span>Send</span>
+                        <span class="save-button-icon"></span></button>
+                </li>
+                <li class="pure-menu-item menu-item-button">
+                    <button id="cancel_button" class="pure-button button-error">
+                        <span>Cancel</span>
+                        <span class="cancel-button-icon"></span></button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="main">
+        <div class="header">
+            <h1 id="form_title">Edit form</h1>
+            <h2 id="form_description">Change it!</h2>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="content">
+                <form class="pure-form">
+                    <fieldset>
+                        <div id="question-list"></div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+
+        {% include 'footer.html' %}
+    </div>
+</div>
+</body>
+</html>

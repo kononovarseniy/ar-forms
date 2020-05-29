@@ -33,15 +33,21 @@ class FormManager:
         return FormManager.filter_accessible(requesting, FormRepository.get_forms_by_creator(user))
 
     @staticmethod
-    def get_form_by_id(requesting: User, form_id: int) -> Form:
+    def get_form_by_id(requesting: User, form_id: int, get_answers: bool) -> Form:
         form = FormRepository.get_form_by_id(form_id)
         if form and not FormManager.is_accessible(requesting, form):
+            raise PermissionError
+
+        if get_answers and not FormManager.is_owner(requesting, form):
             raise PermissionError
 
         form.questions = list(QuestionRepository.get_all_by_form_id(form_id))
         form.questions.sort(key=lambda x: x.index)
         for q in form.questions:
             q.answers = list(AnswerRepository.get_all_by_question_id(q.id))
+            if not get_answers:
+                for a in q.answers:
+                    a.is_right = False
             q.answers.sort(key=lambda x: x.index)
 
         return form

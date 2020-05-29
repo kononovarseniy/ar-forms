@@ -1,0 +1,23 @@
+@import "ar_forms.less";
+
+.question-container {
+  .card-header {
+    background: black;
+
+    &.question-type-single-variant {
+      background: @light_blue;
+    }
+
+    &.question-type-multiple-variants {
+      background: rgb(28, 184, 65);
+    }
+
+    &.question-type-free-answer {
+      background: gray;
+    }
+
+    .content-subhead {
+      color: white;
+    }
+  }
+}

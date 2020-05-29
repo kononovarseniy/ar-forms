@@ -77,8 +77,8 @@ class API {
         };
     }
 
-    static get_form(form_id) {
-        return API.query('get_form', {form_id: form_id});
+    static get_form(form_id, get_answers = false) {
+        return API.query('get_form', {form_id: form_id, get_answers: get_answers});
     }
 
     static update_form(form, publish = false) {
@@ -153,6 +153,19 @@ class Modal {
 
     hide() {
         this.#modal.style.display = 'none';
+    }
+}
+
+class AnswerViewFactory {
+    #types = new Map()
+
+    registerType(typename, answerView) {
+        this.#types.set(typename, answerView);
+    }
+
+    createView(typename) {
+        let ctor = this.#types.get(typename);
+        return new ctor();
     }
 }
 
@@ -268,6 +281,10 @@ function show_publish_confirmation_dialog_from_edit(callback) {
 
 function go_to_edit_form_page(form_id = 0) {
     location.href = `/edit_form?form_id=${form_id}`
+}
+
+function go_to_dashboard() {
+    window.location.href = '/dashboard';
 }
 
 document_loaded.do_after(init_menu)

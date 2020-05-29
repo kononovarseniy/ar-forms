@@ -57,20 +57,7 @@ Answer.createEmpty = function () {
     };
 };
 
-class AnswerViewFactory {
-    #types = new Map()
-
-    registerType(typename, answerView) {
-        this.#types.set(typename, answerView);
-    }
-
-    createView(typename) {
-        let ctor = this.#types.get(typename);
-        return new ctor();
-    }
-}
-
-class QuestionView {
+class QuestionEditor {
     #element;
     #answer_view;
     #current_question;
@@ -143,22 +130,7 @@ class QuestionView {
     }
 }
 
-class AnswerView {
-
-    get edited_answers() {
-        return [];
-    }
-
-    get current_answers() {
-        return [];
-    }
-
-    set current_answers(value) {
-
-    }
-}
-
-class AnswerVariantView {
+class AnswerVariantEditor {
     #element
     #current_answer
     on_delete
@@ -202,7 +174,7 @@ class AnswerVariantView {
     }
 }
 
-class AnswerListView extends AnswerView {
+class AnswerListEditor {
     #element
     #answer_template
     #current_answers
@@ -213,8 +185,6 @@ class AnswerListView extends AnswerView {
     }
 
     constructor(answer_template) {
-        super();
-
         this.#answer_template = answer_template;
 
         let template = document.getElementById('answer-list-template')
@@ -246,7 +216,7 @@ class AnswerListView extends AnswerView {
     }
 
     _add_answer(answer) {
-        let view = new AnswerVariantView(this.#answer_template);
+        let view = new AnswerVariantEditor(this.#answer_template);
         view.current_answer = answer;
         view.on_delete = () => this._on_delete_answer(view);
         this.#answer_views.push(view);
@@ -266,7 +236,7 @@ class AnswerListView extends AnswerView {
 
 let answer_radio_list_id_counter = 0;
 
-class AnswerRadioListView extends AnswerListView {
+class AnswerRadioListEditor extends AnswerListEditor {
     constructor() {
         let template = document.getElementById('answer-radio-template')
             .content.firstElementChild.cloneNode(true);
@@ -276,7 +246,7 @@ class AnswerRadioListView extends AnswerListView {
     }
 }
 
-class AnswerCheckboxListView extends AnswerListView {
+class AnswerCheckboxListEditor extends AnswerListEditor {
     constructor() {
         let template = document.getElementById('answer-checkbox-template')
             .content.firstElementChild.cloneNode(true);
@@ -284,7 +254,7 @@ class AnswerCheckboxListView extends AnswerListView {
     }
 }
 
-class FreeAnswerView extends AnswerView {
+class FreeAnswerEditor {
     #element
 
     get element() {
@@ -292,8 +262,6 @@ class FreeAnswerView extends AnswerView {
     }
 
     constructor() {
-        super();
-
         let template = document.getElementById('free-answer-template')
         let container = template.content.firstElementChild.cloneNode(true);
         this.#element = {
@@ -314,11 +282,11 @@ class FreeAnswerView extends AnswerView {
 }
 
 let answerViewFactory = new AnswerViewFactory();
-answerViewFactory.registerType('single-variant', AnswerRadioListView);
-answerViewFactory.registerType('multiple-variants', AnswerCheckboxListView);
-answerViewFactory.registerType('free-answer', FreeAnswerView);
+answerViewFactory.registerType('single-variant', AnswerRadioListEditor);
+answerViewFactory.registerType('multiple-variants', AnswerCheckboxListEditor);
+answerViewFactory.registerType('free-answer', FreeAnswerEditor);
 
-class FormView {
+class FormEditor {
     #current_form;
 
     #title;
@@ -352,7 +320,7 @@ class FormView {
     }
 
     _add_question(question) {
-        let view = new QuestionView();
+        let view = new QuestionEditor();
         view.current_question = question;
         view.on_delete = () => this._on_delete_question(view);
 
@@ -401,12 +369,12 @@ class FormView {
 }
 
 
-let form_view;
+let form_editor;
 
 let on_form_init = new BarrierEvent();
 
 function init_page() {
-    form_view = new FormView();
+    form_editor = new FormEditor();
     on_form_init.trigger();
 
     document.getElementById('save_button').onclick = on_save;
@@ -416,7 +384,7 @@ function init_page() {
 
 function set_current_form(form) {
     on_form_init.do_after(function () {
-        form_view.current_form = form
+        form_editor.current_form = form
     });
 }
 
@@ -424,7 +392,7 @@ function load_form(form_id) {
     if (form_id === 0) {
         set_current_form(Form.createEmpty());
     } else {
-        API.get_form(form_id)
+        API.get_form(form_id, true)
             .on_load(set_current_form)
             .on_error(show_error_message)
             .send();
@@ -442,7 +410,7 @@ function get_form_id() {
 load_form(get_form_id());
 
 function send_form_updates(publish, callback) {
-    let form = form_view.edited_form;
+    let form = form_editor.edited_form;
 
     API.update_form(form, publish)
         .on_load(function (result) {
@@ -451,10 +419,6 @@ function send_form_updates(publish, callback) {
         })
         .on_error(show_error_message)
         .send();
-}
-
-function go_to_dashboard() {
-    window.location.href = '/dashboard';
 }
 
 function on_save() {
@@ -468,7 +432,7 @@ function on_publish() {
 }
 
 function on_cancel() {
-    if (!form_view.is_changed) {
+    if (!form_editor.is_changed) {
         go_to_dashboard();
         return;
     }

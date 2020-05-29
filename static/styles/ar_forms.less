@@ -4,8 +4,9 @@
 @content-subheading-color: #888;
 @footer-background: #fafafa;
 @menu-background-selected: #1f8dd6;
-@selection-background: #44a4e4;
-@link-color: #44a4e4;
+@light_blue: #44a4e4;
+@selection-background: @light_blue;
+@link-color: @light_blue;
 @menu-background: #191818;
 @menu-text-color: #999;
 @header-line-color: #eee;
@@ -37,6 +38,7 @@ form {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   border-radius: 1em;
   transition: 0.3s;
+  overflow: hidden;
 
   &:hover {
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
@@ -345,11 +347,11 @@ td.fit-width {
   margin: 50px 0 20px 0;
   font-weight: 300;
   color: @content-subheading-color;
+  display: inline-block;
 }
 
 .content-subhead-with-button {
   .content-subhead {
-    display: inline-block;
   }
 
   button {
