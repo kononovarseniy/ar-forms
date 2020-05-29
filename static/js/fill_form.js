@@ -42,6 +42,10 @@ class QuestionView {
         this.#answer_view.current_answers = question.answers;
         this.#element.answers.append(this.#answer_view.element);
     }
+
+    get selected_answers() {
+        return this.#answer_view.selected_answers;
+    }
 }
 
 class AnswerVariantView {
@@ -61,10 +65,18 @@ class AnswerVariantView {
         }
     }
 
+    get current_answer() {
+        return this.#current_answer;
+    }
+
     set current_answer(answer) {
         this.#current_answer = answer;
         this.#element.check.checked = answer.is_right;
         this.#element.text.textContent = answer.text;
+    }
+
+    get is_checked() {
+        return this.#element.check.checked
     }
 }
 
@@ -102,6 +114,10 @@ class AnswerListView {
         this.#answer_views.push(view);
         this.#element.container.append(view.element);
     }
+
+    get selected_answers() {
+        return this.#answer_views.filter(v => v.is_checked).map(v => v.current_answer);
+    }
 }
 
 let answer_radio_list_id_counter = 0;
@@ -135,11 +151,21 @@ class FreeAnswerView {
         let template = document.getElementById('free-answer-template')
         let container = template.content.firstElementChild.cloneNode(true);
         this.#element = {
-            container: container
+            container: container,
+            text: container.querySelector('#free-answer-text')
         }
     }
 
     set current_answers(answers) {
+    }
+
+    get selected_answers() {
+        return [{
+            id: 0,
+            text: this.#element.text.value,
+            is_right: false,
+            is_user_answer: true
+        }];
     }
 }
 
@@ -195,6 +221,10 @@ class FormView {
         this.#current_form = form;
         this._set_fields(form);
     }
+
+    get selected_answers() {
+        return this.#question_views.map(v => v.selected_answers);
+    }
 }
 
 let form_view;
@@ -236,27 +266,22 @@ function get_form_id() {
 
 load_form(get_form_id());
 
-function submit_form(publish, callback) {
-    /*let form = form_view.edited_form;
+function submit_form() {
+    let answers = form_view.selected_answers.map(arr => arr.map(a => a.id === 0 ? a.text : a.id));
 
-    API.update_form(form, publish)
-        .on_load(function (result) {
-            set_current_form(result);
-            do_callback(callback);
-        })
+    API.submit_form(form_view.current_form.id, answers)
+        .on_load(go_to_dashboard)
         .on_error(show_error_message)
-        .send();*/
+        .send();
 }
 
 function on_send() {
-    submit_form(false, null);
+    submit_form();
 }
 
 function on_cancel() {
     document.getElementById('modal-confirm-exit').modal
-        .on_positive(function () {
-            submit_form(false, go_to_dashboard);
-        })
+        .on_positive(submit_form)
         .on_negative(go_to_dashboard)
         .show();
 }

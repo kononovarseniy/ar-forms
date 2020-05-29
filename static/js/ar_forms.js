@@ -95,6 +95,13 @@ class API {
     static publish_form(form_id) {
         return API.query('publish_form', {form_id: form_id})
     }
+
+    static submit_form(form_id, answers) {
+        return API.query('submit_form', {
+            form_id: form_id,
+            answers: JSON.stringify(answers)
+        });
+    }
 }
 
 class Modal {
