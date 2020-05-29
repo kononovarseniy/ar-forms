@@ -88,3 +88,39 @@ class Answer(EntityWithId):
         self.question_id = question.id
         self.question = question
         return self
+
+
+class Submission(EntityWithId):
+    def __init__(self, submission_id, time, form, user):
+        super().__init__(submission_id)
+        self.time = time
+        self.form_id = int(form)
+        self.user_id = int(user)
+
+        self.form = form if isinstance(form, Form) else None
+        self.user = user if isinstance(user, User) else None
+
+    def set_form(self, form: Form):
+        self.form_id = form.id
+        self.form = form
+
+    def set_user(self, user: User):
+        self.user_id = user.id
+        self.user = user
+
+
+class SubmissionAnswer:
+    def __init__(self, submission, answer):
+        self.submission_id = int(submission)
+        self.answer_id = int(answer)
+
+        self.submission = submission if isinstance(submission, Submission) else None
+        self.answer = answer if isinstance(answer, Answer) else None
+
+    def set_submission(self, submission: Submission):
+        self.submission_id = submission.id
+        self.submission = submission
+
+    def set_answer(self, answer: Answer):
+        self.answer_id = answer.id
+        self.answer = answer

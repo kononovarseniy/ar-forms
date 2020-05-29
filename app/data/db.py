@@ -22,6 +22,8 @@ def _recreate_schema():
         cur.execute("DROP TABLE IF EXISTS users CASCADE;")
         cur.execute("DROP TABLE IF EXISTS form_types CASCADE;")
         cur.execute("DROP TABLE IF EXISTS forms CASCADE;")
+        cur.execute("DROP TABLE IF EXISTS submissions CASCADE;")
+        cur.execute("DROP TABLE IF EXISTS submission_answers CASCADE;")
 
         cur.execute("CREATE TABLE parameters (name text PRIMARY KEY, value text);")
         cur.execute("INSERT INTO parameters (name, value) VALUES (%s, %s);", (SCHEMA_VERSION_PARAM, SCHEMA_VERSION))
@@ -78,6 +80,22 @@ def _recreate_schema():
                     "   question_id int not null references questions ON DELETE CASCADE"
                     ");")
         cur.execute("CREATE INDEX ON answers (question_id);")
+
+        cur.execute("CREATE TABLE submissions ("
+                    "   id serial primary key,"
+                    "   time timestamp not null,"
+                    "   user_id int not null references users ON DELETE CASCADE,"
+                    "   form_id int not null references forms ON DELETE CASCADE"
+                    ");")
+        cur.execute("CREATE INDEX ON submissions (user_id);")
+        cur.execute("CREATE INDEX ON submissions (form_id);")
+
+        cur.execute("CREATE TABLE submission_answers ("
+                    "   submission_id int not null references submissions ON DELETE CASCADE,"
+                    "   answer_id int not null references answers ON DELETE CASCADE,"
+                    "   unique (submission_id, answer_id)"
+                    ");")
+        cur.execute("CREATE INDEX ON submission_answers (submission_id);")
 
 
 def _get_schema_version():

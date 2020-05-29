@@ -4,3 +4,5 @@ from .FormRepository import FormRepository
 from .QuestionTypeRepository import QuestionTypeRepository
 from .QuestionRepository import QuestionRepository
 from .AnswerRepository import AnswerRepository
+from .SubmissionRepository import SubmissionRepository
+from .SubmissionAnswerReposiory import SubmissionAnswerRepository
