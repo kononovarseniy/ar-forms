@@ -5,7 +5,7 @@ from flask import request, jsonify, json
 from jsonschema import validate, ValidationError
 from werkzeug.exceptions import BadRequestKeyError
 
-from model import SessionManager, FormManager
+from model import SessionManager, FormManager, SubmissionManager
 from util.json import get_schema
 
 _api_methods = {}
@@ -123,4 +123,16 @@ def delete_form(user):
 @auth_required
 def publish_form(user):
     form_id = request.args['form_id']
-    FormManager.delete_form(user, form_id)
+    FormManager.publish_form(user, form_id)
+
+@api_method
+@auth_required
+def submit_form(user):
+    form_id = request.args['form_id']
+
+    answers_json = request.args['answers']
+
+    answers = json.loads(answers_json)
+    validate(answers, get_schema('submit_form_schema'))
+
+    SubmissionManager.submit(user, form_id, answers)
