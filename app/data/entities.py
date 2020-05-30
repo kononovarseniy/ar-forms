@@ -103,10 +103,12 @@ class Submission(EntityWithId):
     def set_form(self, form: Form):
         self.form_id = form.id
         self.form = form
+        return self
 
     def set_user(self, user: User):
         self.user_id = user.id
         self.user = user
+        return self
 
 
 class SubmissionAnswer:
@@ -120,7 +122,9 @@ class SubmissionAnswer:
     def set_submission(self, submission: Submission):
         self.submission_id = submission.id
         self.submission = submission
+        return self
 
     def set_answer(self, answer: Answer):
         self.answer_id = answer.id
         self.answer = answer
+        return self

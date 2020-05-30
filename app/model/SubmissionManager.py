@@ -79,6 +79,10 @@ _handlers = [
 ]
 
 
+def _get_handler(q: Question):
+    return next((h for h in _handlers if h.get_accepted_type().name == q.question_type.name), None)
+
+
 class SubmissionManager:
     @staticmethod
     def submit(user: User, form_id: int, answers: List[List[Union[int, str]]]) -> None:
@@ -93,7 +97,7 @@ class SubmissionManager:
             submission = Submission(None, datetime.now(), form, user)
             SubmissionRepository.insert(submission)
             for q, a in zip(form.questions, answers):
-                handler = next((h for h in _handlers if h.get_accepted_type().name == q.question_type.name), None)
+                handler = _get_handler(q)
                 if handler is None:
                     raise ValueError('BUG: Unsupported question type')
                 if not handler.validate_answers(q, a):

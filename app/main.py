@@ -1,9 +1,10 @@
+import io
 from functools import wraps
 
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, send_file
 
 from api import execute_api_method
-from model import SessionManager, UserManager, FormManager
+from model import SessionManager, UserManager, FormManager, FormStatisticsManager
 from util.json import JSONEncoder
 from util.security import get_secret
 
@@ -108,3 +109,15 @@ def edit_form(user):
 @authorized_only
 def fill_form(user):
     return render_template('fill_form.html', user=user)
+
+
+@app.route('/get_statistics')
+@authorized_only
+def get_statistics(user):
+    form_id = int(request.args['form_id'])
+    f = io.BytesIO()
+    name = FormStatisticsManager.create_zip_file(user, form_id, f)
+    f.seek(0)
+    return send_file(f, as_attachment=True,
+                     attachment_filename=name,
+                     mimetype='application/zip')
