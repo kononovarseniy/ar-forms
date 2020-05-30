@@ -57,8 +57,7 @@ Answer.createEmpty = function () {
     return {
         id: 0,
         text: '',
-        is_right: false,
-        is_user_answer: false
+        is_right: false
     };
 };
 Answer.isChanged = function (old_a, new_a) {
@@ -66,8 +65,7 @@ Answer.isChanged = function (old_a, new_a) {
         old_a.id === 0 || new_a.id === 0 ||
         old_a.id !== new_a.id ||
         old_a.text !== new_a.text ||
-        old_a.is_right !== new_a.is_right ||
-        old_a.is_user_answer !== new_a.is_user_answer
+        old_a.is_right !== new_a.is_right
     );
 }
 
@@ -182,8 +180,7 @@ class AnswerVariantEditor {
         return {
             id: this.#current_answer.id,
             text: this.#element.text.value,
-            is_right: this.#element.check.checked,
-            is_user_answer: false
+            is_right: this.#element.check.checked
         };
     }
 }
