@@ -233,6 +233,9 @@ function init_buttons() {
 
     document.getElementsByName('button-publish')
         .forEach((e) => e.onclick = onPublishButtonClick)
+
+    document.getElementsByName('button-download')
+        .forEach((e) => e.onclick = onDownloadButtonClick)
 }
 
 function checkRegistrationForm() {
@@ -348,4 +351,10 @@ function onPublishButtonClick(event) {
             .on_error(show_error_message)
             .send();
     }
+}
+
+function onDownloadButtonClick(event) {
+    let id = parseInt(event.target.getAttribute('form_id'));
+
+    window.location.href = `/get_statistics?form_id=${id}`;
 }
