@@ -436,7 +436,9 @@ function send_form_updates(publish, callback) {
 }
 
 function on_save() {
-    send_form_updates(false, null);
+    send_form_updates(false, function () {
+        show_snackbar("Changes saved successfully")
+    });
 }
 
 function on_publish() {

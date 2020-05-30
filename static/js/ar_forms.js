@@ -178,6 +178,8 @@ class AnswerViewFactory {
 
 let modals_init = new BarrierEvent();
 
+let snackbar_init = new BarrierEvent();
+
 let document_loaded = new BarrierEvent();
 
 document.addEventListener('DOMContentLoaded', () => document_loaded.trigger())
@@ -236,6 +238,16 @@ function init_buttons() {
 
     document.getElementsByName('button-download')
         .forEach((e) => e.onclick = onDownloadButtonClick)
+
+    document.getElementsByName('button-share')
+        .forEach((e) => e.onclick = onShareButtonClick)
+}
+
+function init_snackbar() {
+    let snackbar = document.createElement('div');
+    snackbar.id = 'snackbar';
+    document.body.appendChild(snackbar)
+    snackbar_init.trigger();
 }
 
 function checkRegistrationForm() {
@@ -297,9 +309,21 @@ function go_to_dashboard() {
     window.location.href = '/dashboard';
 }
 
+function show_snackbar(text) {
+    snackbar_init.do_after(function () {
+        let snackbar = document.getElementById('snackbar');
+        snackbar.textContent = text;
+        snackbar.classList.add('show');
+        setTimeout(function () {
+            snackbar.classList.remove('show');
+        }, 3000);
+    })
+}
+
 document_loaded.do_after(init_menu)
 document_loaded.do_after(init_buttons)
 document_loaded.do_after(init_modals)
+document_loaded.do_after(init_snackbar)
 
 function onNewFormButtonClick(event) {
     go_to_edit_form_page();
@@ -357,4 +381,12 @@ function onDownloadButtonClick(event) {
     let id = parseInt(event.target.getAttribute('form_id'));
 
     window.location.href = `/get_statistics?form_id=${id}`;
+}
+
+function onShareButtonClick(event) {
+    let id = parseInt(event.target.getAttribute('form_id'));
+
+    navigator.clipboard.writeText(`${window.location.origin}/fill_form?form_id=${id}`)
+        .then(null);
+    show_snackbar("Link copied to clipboard")
 }
