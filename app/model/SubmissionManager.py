@@ -31,6 +31,8 @@ class AnswerHandler:
 
 def _calculate_score(question: Question, answers: List[int]):
     right_answer_ids = set(a.id for a in question.answers if a.is_right)
+    if len(right_answer_ids) == 0:
+        return 1 if len(answers) == 0 else 0
     score = sum(1 if a_id in right_answer_ids else -1 for a_id in answers)
     score /= len(right_answer_ids)
     return max(0, min(score, 1))
