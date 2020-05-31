@@ -35,6 +35,8 @@ class FormManager:
     @staticmethod
     def get_form_by_id(requesting: User, form_id: int, get_answers: bool) -> Form:
         form = FormRepository.get_form_by_id(form_id)
+        if form is None:
+            raise KeyError("No such form")
         if form and not FormManager.is_accessible(requesting, form):
             raise PermissionError
 

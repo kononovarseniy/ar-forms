@@ -247,7 +247,7 @@ function set_current_form(form) {
 
 function load_form(form_id) {
     if (form_id === 0) {
-        set_current_form(Form.createEmpty());
+        show_error_message("No such form")
     } else {
         API.get_form(form_id, false)
             .on_load(set_current_form)
