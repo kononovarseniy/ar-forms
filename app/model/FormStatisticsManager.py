@@ -38,10 +38,10 @@ class _CsvSubmissionHandler(_SubmissionHandler):
 class _SubmissionsFileHandler(_CsvSubmissionHandler):
     def __init__(self, filename: str):
         super().__init__(filename)
-        self.rows.append(['submission_id', 'login', 'display_name', 'time'])
+        self.rows.append(['submission_id', 'login', 'display_name', 'time', 'score, %'])
 
     def handle_submission(self, s: Submission) -> None:
-        self.rows.append([s.id, s.user.login, s.user.display_name, s.time])
+        self.rows.append([s.id, s.user.login, s.user.display_name, s.time, int(round(s.score * 100))])
 
 
 class _SingleVariantQuestionWriter(_CsvSubmissionHandler):
