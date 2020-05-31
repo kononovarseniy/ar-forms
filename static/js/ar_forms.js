@@ -309,6 +309,10 @@ function go_to_dashboard() {
     window.location.href = '/dashboard';
 }
 
+function go_to_results() {
+    window.location.href = '/results';
+}
+
 function show_snackbar(text) {
     snackbar_init.do_after(function () {
         let snackbar = document.getElementById('snackbar');

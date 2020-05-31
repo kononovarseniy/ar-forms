@@ -1,10 +1,11 @@
 import io
+from datetime import datetime
 from functools import wraps
 
 from flask import Flask, request, render_template, redirect, url_for, send_file
 
 from api import execute_api_method
-from model import SessionManager, UserManager, FormManager, FormStatisticsManager
+from model import SessionManager, UserManager, FormManager, FormStatisticsManager, SubmissionManager
 from util.json import JSONEncoder
 from util.security import get_secret
 
@@ -97,6 +98,13 @@ def logout():
 def dashboard(user):
     forms = list(FormManager.get_forms_by_user(user, user))
     return render_template('dashboard.html', user=user, forms=forms)
+
+
+@app.route('/results')
+@authorized_only
+def results(user):
+    submissions = list(SubmissionManager.get_submissions_by_user(user))
+    return render_template('results.html', user=user, submissions=submissions, today=datetime.today().date())
 
 
 @app.route('/edit_form')

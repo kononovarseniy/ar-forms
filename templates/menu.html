@@ -17,7 +17,7 @@
             {{ menu_item(section, 'about', '/', 'About') }}
             {% if user %}
                 {{ menu_item(section, 'dashboard', '/dashboard', 'Dashboard') }}
-                {{ menu_item(section, 'search', '/search', 'Search') }}
+                {{ menu_item(section, 'results', '/results', 'Results') }}
                 <li class="pure-menu-item menu-item-divided"><a href="/logout" class="pure-menu-link">Log out</a></li>
             {% else %}
                 {{ menu_item(section, 'login', '/login', 'Log in', classes='menu-item-divided menu-item-login') }}

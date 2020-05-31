@@ -270,7 +270,7 @@ function submit_form() {
     let answers = form_view.selected_answers.map(arr => arr.map(a => a.id === 0 ? a.text : a.id));
 
     API.submit_form(form_view.current_form.id, answers)
-        .on_load(go_to_dashboard)
+        .on_load(go_to_results)
         .on_error(show_error_message)
         .send();
 }

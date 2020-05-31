@@ -1,8 +1,8 @@
 from typing import Iterator, Union
 
-from data import UserRepository
+from data import UserRepository, FormRepository, FormTypeRepository
 from data.db import open_cursor
-from data.entities import Submission, Form
+from data.entities import Submission, Form, User
 from data.fieldset import EntityFields, FieldSet
 
 
@@ -49,21 +49,23 @@ class SubmissionRepository:
                 [int(submission)])
 
     @staticmethod
-    def get_by_form(form: Union[int, Form]) -> Iterator[Submission]:
-        fs = FieldSet(SubmissionRepository.fields)
+    def get_by_user_join_forms(user: Union[int, User]) -> Iterator[Submission]:
+        fs = FieldSet(SubmissionRepository.fields, FormRepository.fields, FormTypeRepository.fields)
 
-        if isinstance(form, Form):
-            fs.constructor = lambda s: s.set_form(form)
+        if isinstance(user, User):
+            fs.constructor = lambda s, f, ft: s.set_form(f.set_form_type(ft)).set_user(user)
         else:
-            fs.constructor = lambda s: s
+            fs.constructor = lambda s, f, ft: s.set_form(f.set_form_type(ft))
 
-        form_id = int(form)
+        user_id = int(user)
         with open_cursor() as cur:
             cur.execute(
                 f"SELECT {fs} "
                 "FROM submissions "
-                "WHERE submissions.form_id = %s ORDER BY submissions.time DESC",
-                [form_id])
+                "JOIN forms on submissions.form_id = forms.id "
+                "JOIN form_types ON forms.type_id = form_types.id "
+                "WHERE submissions.user_id = %s ORDER BY submissions.time DESC",
+                [user_id])
             for submission in fs.unpack_iter(cur):
                 yield submission
 

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ArForms</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png"/>
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+
+    <link rel="stylesheet/less" type="text/css" href="/static/styles/ar_forms.less"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.9.0/less.min.js"></script>
+    <script src="/static/js/ar_forms.js"></script>
+</head>
+<body>
+{% include 'modals.html' %}
+<div id="layout">
+    {% with section='results' %}
+        {% include 'menu.html' %}
+    {% endwith %}
+
+    <div id="main">
+        <div class="header">
+            <h1>Your results</h1>
+            <h2>Forms submitted by You</h2>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="content">
+                <h2 class="content-subhead">Your submissions</h2>
+                {% if submissions|length == 0 %}
+                    <p>
+                        You have not filled any forms.
+                        You can fill out the form if you have a special link created by the author of the form.
+                    </p>
+                {% else %}
+                    <table class="pure-table pure-table-horizontal submitted-forms-table">
+                        <thead>
+                        <tr>
+                            <td class="centered-text">Type</td>
+                            <td>Title</td>
+                            <td class="centered-text">Time</td>
+                            <td class="centered-text">Score</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for submission in submissions %}
+                            <tr form_id="{{ submission.form_id }}">
+                                <td class="fit-width">{{ submission.form_type }}</td>
+                                <td>{{ submission.form_title }}</td>
+                                <td class="fit-width centered-text">{{ submission.time.strftime('%H:%M' if submission.time.date() ==  today else '%d %B %Y %H:%M') }}</td>
+                                <td class="fit-width centered-text bold-text
+                                        {% if submission.score is not none %}
+                                            {% if submission.score == 1 %}text-success
+                                            {% elif submission.score >= 0.5 %}text-warning
+                                            {% else %}text-error
+                                            {% endif %}
+                                        {% endif %}">
+                                    <span>
+                                        {% if submission.score is not none %}
+                                            {{ (submission.score * 100)|round|int }}%
+                                        {% else %}
+                                            &mdash;
+                                        {% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+
+        {% include 'footer.html' %}
+    </div>
+</div>
+</body>
+</html>
