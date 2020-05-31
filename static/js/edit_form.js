@@ -391,6 +391,12 @@ function init_page() {
     document.getElementById('save_button').onclick = on_save;
     document.getElementById('publish_button').onclick = on_publish;
     document.getElementById('cancel_button').onclick = on_cancel;
+    window.onkeydown = function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            return false;
+        }
+    };
 }
 
 function set_current_form(form) {

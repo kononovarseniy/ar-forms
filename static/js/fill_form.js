@@ -237,6 +237,12 @@ function init_page() {
 
     document.getElementById('send_button').onclick = on_send;
     document.getElementById('cancel_button').onclick = on_cancel;
+    window.onkeydown = function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            return false;
+        }
+    };
 }
 
 function set_current_form(form) {
