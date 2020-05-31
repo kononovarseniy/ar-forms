@@ -224,6 +224,9 @@ function init_modals() {
 }
 
 function init_buttons() {
+    document.querySelectorAll('.form-table-row')
+        .forEach((e) => e.onclick = onFormTableRowClick)
+
     document.getElementsByName('new_form_button')
         .forEach((e) => e.onclick = onNewFormButtonClick)
 
@@ -301,8 +304,16 @@ function show_publish_confirmation_dialog_from_edit(callback) {
     });
 }
 
+function get_fill_form_url(id) {
+    return `${window.location.origin}/fill_form?form_id=${id}`;
+}
+
 function go_to_edit_form_page(form_id = 0) {
-    location.href = `/edit_form?form_id=${form_id}`
+    location.href = `/edit_form?form_id=${form_id}`;
+}
+
+function go_to_fill_form_page(form_id = 0) {
+    location.href = get_fill_form_url(form_id);
 }
 
 function go_to_dashboard() {
@@ -333,8 +344,18 @@ function onNewFormButtonClick(event) {
     go_to_edit_form_page();
 }
 
+function onFormTableRowClick(event) {
+    event.stopPropagation();
+    let id = event.currentTarget.getAttribute('form_id');
+    if (event.currentTarget.classList.contains('published-form'))
+        go_to_fill_form_page(id);
+    else
+        go_to_edit_form_page(id);
+}
+
 function onDeleteButtonClick(event) {
-    let id = parseInt(event.target.getAttribute('form_id'));
+    event.stopPropagation();
+    let id = parseInt(event.currentTarget.getAttribute('form_id'));
 
     API.get_form(id)
         .on_load(delete_with_confirmation)
@@ -356,11 +377,13 @@ function onDeleteButtonClick(event) {
 }
 
 function onEditButtonClick(event) {
-    go_to_edit_form_page(parseInt(event.target.getAttribute('form_id')));
+    event.stopPropagation();
+    go_to_edit_form_page(parseInt(event.currentTarget.getAttribute('form_id')));
 }
 
 function onPublishButtonClick(event) {
-    let id = parseInt(event.target.getAttribute('form_id'));
+    event.stopPropagation();
+    let id = parseInt(event.currentTarget.getAttribute('form_id'));
 
     API.get_form(id)
         .on_load(publish_with_confirmation)
@@ -382,15 +405,17 @@ function onPublishButtonClick(event) {
 }
 
 function onDownloadButtonClick(event) {
-    let id = parseInt(event.target.getAttribute('form_id'));
+    event.stopPropagation();
+    let id = parseInt(event.currentTarget.getAttribute('form_id'));
 
     window.location.href = `/get_statistics?form_id=${id}`;
 }
 
 function onShareButtonClick(event) {
-    let id = parseInt(event.target.getAttribute('form_id'));
+    event.stopPropagation();
+    let id = parseInt(event.currentTarget.getAttribute('form_id'));
 
-    navigator.clipboard.writeText(`${window.location.origin}/fill_form?form_id=${id}`)
+    navigator.clipboard.writeText(get_fill_form_url(id))
         .then(null);
     show_snackbar("Link copied to clipboard")
 }

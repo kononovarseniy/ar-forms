@@ -50,17 +50,37 @@
                         </thead>
                         <tbody>
                         {% for form in forms %}
-                            <tr class="{% if form.is_public %}published-form{% endif %}" form_id="{{ form.id }}">
+                            <tr class="form-table-row {% if form.is_public %}published-form{% endif %}"
+                                form_id="{{ form.id }}">
                                 <td class="fit-width">{{ form.form_type.name }}</td>
                                 <td>{{ form.title }}</td>
                                 <td class="fit-width"><span class="icon-published"></span></td>
                                 <td class="fit-width">
                                     <div class="action-button-group">
-                                        <button name="button-edit" class="button-edit" form_id="{{ form.id }}" title="Edit"></button>
-                                        <button name="button-publish" class="button-publish" form_id="{{ form.id }}" title="Publish"></button>
-                                        <button name="button-share" class="button-share" form_id="{{ form.id }}" title="Copy link"></button>
-                                        <button name="button-download" class="button-download" form_id="{{ form.id }}" title="Download statistics"></button>
-                                        <button name="button-delete" class="button-delete" form_id="{{ form.id }}" title="Delete"></button>
+                                        <button form_id="{{ form.id }}"
+                                                name="button-edit"
+                                                class="button-edit"
+                                                title="Edit"></button>
+
+                                        <button form_id="{{ form.id }}"
+                                                name="button-publish"
+                                                class="button-publish"
+                                                title="Publish"></button>
+
+                                        <button form_id="{{ form.id }}"
+                                                name="button-share"
+                                                class="button-share"
+                                                title="Copy link"></button>
+
+                                        <button form_id="{{ form.id }}"
+                                                name="button-download"
+                                                class="button-download"
+                                                title="Download statistics"></button>
+
+                                        <button form_id="{{ form.id }}"
+                                                name="button-delete"
+                                                class="button-delete"
+                                                title="Delete"></button>
                                     </div>
                                 </td>
                             </tr>
