@@ -40,9 +40,6 @@ class FormManager:
         if form and not FormManager.is_accessible(requesting, form):
             raise PermissionError
 
-        if get_answers and not FormManager.is_owner(requesting, form):
-            raise PermissionError
-
         form.questions = list(QuestionRepository.get_all_by_form_id(form_id))
         form.questions.sort(key=lambda x: x.index)
         for q in form.questions:

@@ -92,6 +92,10 @@ def get_form():
     get_answers = request.args['get_answers'].lower() == 'true'
 
     form = FormManager.get_form_by_id(user, form_ids, get_answers)
+
+    if get_answers and not FormManager.is_owner(user, form):
+        raise PermissionError("You a not allowed to view answers")
+
     if form:
         return form
     else:
