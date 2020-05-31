@@ -91,9 +91,10 @@ class Answer(EntityWithId):
 
 
 class Submission(EntityWithId):
-    def __init__(self, submission_id, time, form, user):
+    def __init__(self, submission_id, time, score, form, user):
         super().__init__(submission_id)
         self.time = time
+        self.score = score
         self.form_id = int(form)
         self.user_id = int(user)
 

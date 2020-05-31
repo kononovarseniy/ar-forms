@@ -84,6 +84,7 @@ def _recreate_schema():
         cur.execute("CREATE TABLE submissions ("
                     "   id serial primary key,"
                     "   time timestamp not null,"
+                    "   score real not null,"
                     "   user_id int not null references users ON DELETE CASCADE,"
                     "   form_id int not null references forms ON DELETE CASCADE"
                     ");")

@@ -8,7 +8,7 @@ from data.fieldset import EntityFields, FieldSet
 
 class SubmissionRepository:
     fields = EntityFields(
-        ['id', 'time', 'form_id', 'user_id'],
+        ['id', 'time', 'score', 'form_id', 'user_id'],
         Submission, 'submissions')
 
     @staticmethod
@@ -26,11 +26,20 @@ class SubmissionRepository:
     def insert(submission: Submission):
         with open_cursor() as cur:
             cur.execute(
-                "INSERT INTO submissions(time, form_id, user_id)"
-                "VALUES (%s, %s, %s)"
+                "INSERT INTO submissions(time, score, form_id, user_id)"
+                "VALUES (%s, %s, %s, %s)"
                 "RETURNING id;",
-                [submission.time, submission.form_id, submission.user_id])
+                [submission.time, submission.score, submission.form_id, submission.user_id])
             submission.id = cur.fetchone()[0]
+
+    @staticmethod
+    def update(submission: Submission):
+        with open_cursor() as cur:
+            cur.execute(
+                "UPDATE submissions "
+                "SET time = %s, score = %s, form_id = %s, user_id = %s "
+                "WHERE id = %s;",
+                [submission.time, submission.score, submission.form_id, submission.user_id, submission.id])
 
     @staticmethod
     def delete(submission: Union[int, Submission]):
