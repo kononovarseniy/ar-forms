@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from typing import Optional
 
 import psycopg2
+import time
 
 SCHEMA_VERSION = '0.1'
 SCHEMA_VERSION_PARAM = 'SCHEMA_VERSION'
@@ -9,6 +10,7 @@ SCHEMA_VERSION_PARAM = 'SCHEMA_VERSION'
 DB_NAME = 'ar_forms'
 DB_USER = 'ar_forms'
 DB_PASS = 'master'
+DB_HOST = 'postgres'
 
 FORM_TYPE_POLL_ID = 1
 FORM_TYPE_POLL_NAME = "poll"
@@ -158,7 +160,12 @@ def get_connection(new: bool = False):
     """
     if not new and current_transaction is not None:
         return current_transaction.connection
-    return psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS)
+    while True:
+        try:
+            return psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
+        except psycopg2.Error:
+            print('Could not connect to postgres trying again after 1 second')
+            time.sleep(1)
 
 
 @contextmanager

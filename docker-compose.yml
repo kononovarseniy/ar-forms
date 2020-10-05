@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  nginx:
+    build: ./nginx
+    depends_on:
+      - ar-forms
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - ./static:/srv/ar-forms/static:ro
+  ar-forms:
+    build: ./ar-forms
+    depends_on:
+      - postgres
+    volumes:
+      - ./app:/srv/ar-forms/app:ro
+      - ./schema:/srv/ar-forms/schema:ro
+      - ./templates:/srv/ar-forms/templates:ro
+  postgres:
+    build: ./postgres
+    environment:
+      POSTGRES_PASSWORD: master
+
