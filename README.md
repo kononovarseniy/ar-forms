@@ -7,7 +7,7 @@ After you have installed docker run the following commands in the project direct
 ```
 # Create self-signed SSL certificate
 mkdir certs
-openssl req -x509 -newkey rsa:4096 -nodes -keyout crets/ar-forms.key -out certs/ar-forms.crt
+openssl req -x509 -newkey rsa:4096 -nodes -keyout certs/ar-forms.key -out certs/ar-forms.crt
 # Build docker images
 docker-compose build
 ```
