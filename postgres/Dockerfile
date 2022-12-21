@@ -1,4 +1,4 @@
-FROM postgres
+FROM postgres:13
 EXPOSE 5432
 
 RUN mkdir -p /etc/postgresql/ && cp /usr/share/postgresql/postgresql.conf.sample /etc/postgresql/postgresql.conf
